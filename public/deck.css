@@ -100,6 +100,29 @@ h1 {
   box-shadow: 0 0 10px rgba(255, 0, 153, 0.8);
 }
 
+/* Auth bar (ticket 02) — sits left of the twitch status. */
+#auth-status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #eef2fb;
+}
+#auth-status:has(+ #twitch-status) { margin-left: 0; }
+#auth-status #auth-user { color: #9fb6d4; }
+#auth-status a {
+  font: inherit;
+  font-size: 0.8rem;
+  color: #eef2fb;
+  background: rgba(255, 0, 153, 0.18);
+  border: 1px solid rgba(255, 0, 153, 0.6);
+  border-radius: 6px;
+  padding: 0.25rem 0.7rem;
+  text-decoration: none;
+}
+#auth-status a:hover { box-shadow: 0 0 12px rgba(255, 0, 153, 0.3); }
+
 #twitch-status .dot.auth-required {
   background: #d7b56a;
   box-shadow: 0 0 8px rgba(215, 181, 106, 0.7);

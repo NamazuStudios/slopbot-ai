@@ -12,12 +12,72 @@ const express = require('express');
 const eventsub = require('./lib/eventsub');
 const secrets = require('./lib/secrets');
 const slop = require('./lib/slop');
+const auth = require('./lib/auth');
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
 const app = express();
 app.use(express.json());
+
+// Per-user Twitch login (ticket 02): parses the session cookie and attaches
+// req.auth to every request. Management routes below are gated on it.
+app.use(auth.attach);
+
+// Management gate: every deck/operator route requires a logged-in streamer
+// (or superuser). Viewer/OBS-facing endpoints (snapshot, events, bundles,
+// heartbeats, end reports, cameo plays) stay open on purpose — those are what
+// the overlay and the chat audience drive.
+const manage = auth.requireManager;
+
+// Twitch OAuth — the browser-redirect flow from the Namazu Elements manual
+// ("Setting Up Twitch OIDC Login (Backend)"): deterministic callback URL,
+// scopes `openid user:read:email` (openid is mandatory — Twitch returns no
+// id_token without it), Client-Secret-POST token exchange, state cookie for
+// CSRF. Separate from the channel/bot authorization at /auth/twitch.
+app.get('/auth/login', (req, res) => {
+  if (!auth.credentials().configured) {
+    res.type('html').send(`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>SlopBot AI — login</title></head>
+<body style="background:#0D1335;color:#fff;font-family:system-ui,sans-serif;max-width:44rem;margin:10vh auto;padding:0 1.5rem;line-height:1.6">
+<h1 style="color:#FF0099">Login not configured</h1>
+<p>Add your Twitch app's <code>clientId</code> and <code>clientSecret</code> to <code>config/twitch.json</code>, and register this exact OAuth Redirect URL in the <a href="https://dev.twitch.tv/console" style="color:#FF0099">Twitch Developer Console</a>:</p>
+<p><code>${auth.callbackUri(req)}</code></p>
+<p style="color:#8a93c9">It must match byte-for-byte — Twitch rejects any mismatch.</p>
+</body></html>`);
+    return;
+  }
+  const { url, state } = auth.authorizeUrl(req);
+  auth.setStateCookie(res, state);
+  res.redirect(url);
+});
+
+app.get('/auth/callback', async (req, res) => {
+  const code = String(req.query.code ?? '');
+  const state = String(req.query.state ?? '');
+  const expectedState = auth.popState(req);
+  if (!code || !state || !expectedState || state !== expectedState) {
+    res.status(400).type('html').send('<body style="background:#0D1335;color:#fff;font-family:system-ui"><h1 style="color:#FF0099">Login failed</h1><p>Bad or expired state — try again.</p><a href="/auth/login" style="color:#FF0099">Try again</a>');
+    return;
+  }
+  try {
+    const tokens = await auth.exchangeCode(code, auth.callbackUri(req));
+    const user = await auth.fetchUser(tokens.access_token);
+    auth.setSessionCookie(res, auth.issueSession(user));
+    res.redirect('/deck');
+  } catch (err) {
+    res.status(400).type('html').send(`<body style="background:#0D1335;color:#fff;font-family:system-ui"><h1 style="color:#FF0099">Login failed</h1><p>${String(err.message).replace(/[<>&]/g, '')}</p><a href="/auth/login" style="color:#FF0099">Try again</a>`);
+  }
+});
+
+app.get('/auth/logout', (req, res) => {
+  auth.clearSessionCookie(res);
+  res.redirect('/');
+});
+
+// Who am I? The deck and landing page read this to render their auth bar.
+app.get('/api/auth/me', (req, res) => {
+  res.json(auth.status(req));
+});
 
 // Never cache anything: OBS's embedded browser heuristically caches pages in
 // its own profile and keeps booting stale ones across OBS restarts, which
@@ -53,7 +113,7 @@ const clampStingerMs = (value, fallback) => {
   return Number.isFinite(n) ? Math.min(2000, Math.max(40, n)) : fallback;
 };
 
-app.post('/api/stinger', (req, res) => {
+app.post('/api/stinger', manage, (req, res) => {
   const body = req.body ?? {};
   const seed = Number(body.seed);
   stingerRun = {
@@ -238,7 +298,7 @@ app.get('/api/rewards/status', (req, res) => {
 });
 
 // The broadcaster's custom rewards — powers the deck's redeem picker.
-app.get('/api/rewards/list', async (req, res) => {
+app.get('/api/rewards/list', manage, async (req, res) => {
   try {
     res.json({ authorized: true, rewards: await eventsub.listCustomRewards() });
   } catch (err) {
@@ -247,7 +307,7 @@ app.get('/api/rewards/list', async (req, res) => {
 });
 
 // Fire a fake redemption through the real pipeline — testing without Twitch.
-app.post('/api/rewards/test', (req, res) => {
+app.post('/api/rewards/test', manage, (req, res) => {
   res.json(eventsub.testRedemption(req.body ?? {}));
 });
 
@@ -263,39 +323,39 @@ app.get('/api/slop', (req, res) => {
 
 app.get('/api/slop/events', slop.eventsHandler);
 
+// The gated bundle for one playthrough — code + inlined assets.
+app.get('/api/slop/bundle/:name', slop.bundleHandler);
+
 for (const action of ['present', 'dismiss', 'approve', 'reject', 'remove', 'restart', 'cancel']) {
-  app.post(`/api/slop/queue/:id/${action}`, (req, res) => {
+  app.post(`/api/slop/queue/:id/${action}`, manage, (req, res) => {
     res.json({ ok: slop[action](req.params.id) });
   });
 }
 
-// The gated bundle for one playthrough — code + inlined assets.
-app.get('/api/slop/bundle/:name', slop.bundleHandler);
-
 // Deck quick-suspend per slop — body {suspended: true|false}.
-app.post('/api/slop/suspend/:name', (req, res) => {
+app.post('/api/slop/suspend/:name', manage, (req, res) => {
   res.json({ ok: slop.suspend(req.params.name, Boolean(req.body?.suspended)) });
 });
 
 // Per-slop trigger settings: GET reads, POST saves (validated server-side),
 // POST …/test runs the server-side chat matcher for the settings screen.
-app.get('/api/slop/triggers/:name', (req, res) => {
+app.get('/api/slop/triggers/:name', manage, (req, res) => {
   const name = decodeURIComponent(req.params.name);
   const entry = slop.status().registered.find((e) => e.name === name);
   if (!entry) return res.status(404).json({ ok: false, error: 'no such slop' });
   res.json({ ok: true, triggers: entry.triggers ?? [] });
 });
-app.post('/api/slop/triggers/:name', (req, res) => {
+app.post('/api/slop/triggers/:name', manage, (req, res) => {
   const name = decodeURIComponent(req.params.name);
   const body = req.body ?? {};
   res.json(slop.setTriggers(name, body.triggers ?? body, body.cooldownSeconds, body.slopCommand));
 });
-app.post('/api/slop/triggers/:name/test', (req, res) => {
+app.post('/api/slop/triggers/:name/test', manage, (req, res) => {
   res.json(slop.testTriggers(decodeURIComponent(req.params.name), String(req.body?.text ?? '')));
 });
 
 // The streamer's per-slop cooldown reset — the registry chip's clear button.
-app.post('/api/slop/cooldown/:name/clear', (req, res) => {
+app.post('/api/slop/cooldown/:name/clear', manage, (req, res) => {
   res.json({ ok: slop.cooldownClear(decodeURIComponent(req.params.name)) });
 });
 
@@ -303,7 +363,7 @@ app.post('/api/slop/cooldown/:name/clear', (req, res) => {
 // triggers (and cooldowns/allow-lists/immediate dispatch) without waiting
 // for a live follow/raid/sub. Body: { type, text?, login?, userId?,
 // viewers?, bits?, tier?, months?, rewardId? }.
-app.post('/api/slop/trigger/dispatch', (req, res) => {
+app.post('/api/slop/trigger/dispatch', manage, (req, res) => {
   const body = req.body ?? {};
   const type = String(body.type ?? '');
   const allowed = ['chat', 'follow', 'sub', 'resub', 'subgift', 'raid', 'cheer', 'redemption'];
@@ -312,12 +372,12 @@ app.post('/api/slop/trigger/dispatch', (req, res) => {
 });
 
 // Live-editable slop config — persists to slop.json.
-app.post('/api/slop/config', (req, res) => {
+app.post('/api/slop/config', manage, (req, res) => {
   res.json(slop.configure(req.body ?? {}));
 });
 
 // The model catalog for the slop build agent (from the opencode gateway).
-app.get('/api/slop/models', async (req, res) => {
+app.get('/api/slop/models', manage, async (req, res) => {
   res.json(await slop.availableModels());
 });
 
@@ -330,7 +390,7 @@ app.post('/api/slop/plays/heartbeat', (req, res) => {
 });
 
 // Fire a fake viewer chat message at the on-stage slop (tests onChat).
-app.post('/api/slop/chat', (req, res) => {
+app.post('/api/slop/chat', manage, (req, res) => {
   res.json(slop.testChat(String(req.body?.text ?? ''), String(req.body?.user || 'TestViewer')));
 });
 
@@ -354,25 +414,25 @@ app.post('/api/slop/ended', (req, res) => {
 });
 
 // Stage monitor controls: pause/resume the play pipeline, ✕ a row.
-app.post('/api/slop/plays/pause', (req, res) => {
+app.post('/api/slop/plays/pause', manage, (req, res) => {
   res.json({ ok: slop.setPaused(true) });
 });
-app.post('/api/slop/plays/resume', (req, res) => {
+app.post('/api/slop/plays/resume', manage, (req, res) => {
   res.json({ ok: slop.setPaused(false) });
 });
-app.post('/api/slop/plays/remove', (req, res) => {
+app.post('/api/slop/plays/remove', manage, (req, res) => {
   res.json({ ok: slop.playRemove(String(req.body?.name ?? '')) });
 });
 
 // The operator's verdict on a freshly built slop (pending-approval flow).
-app.post('/api/slop/pending/:name/approve', (req, res) => {
+app.post('/api/slop/pending/:name/approve', manage, (req, res) => {
   res.json({ ok: slop.approvePending(decodeURIComponent(req.params.name)) });
 });
-app.post('/api/slop/pending/:name/reject', (req, res) => {
+app.post('/api/slop/pending/:name/reject', manage, (req, res) => {
   res.json({ ok: slop.rejectPending(decodeURIComponent(req.params.name)) });
 });
 // Delete a registered slop entirely (non-pending rows).
-app.post('/api/slop/delete/:name', (req, res) => {
+app.post('/api/slop/delete/:name', manage, (req, res) => {
   const candidates = slop.matchSlopNames(req.params.name);
   if (candidates.length !== 1) {
     res.status(404).json({ ok: false, error: candidates.length > 1 ? 'ambiguous' : 'no such slop' });
@@ -382,12 +442,12 @@ app.post('/api/slop/delete/:name', (req, res) => {
 });
 
 // Build a slop from a chat prompt via the OpenCode agent.
-app.post('/api/slop/build', (req, res) => {
+app.post('/api/slop/build', manage, (req, res) => {
   res.json({ ok: slop.buildDirect(String(req.body?.text ?? ''), req.body?.model) });
 });
 
 // Dry-run the whole pipeline without a real redemption (body: {text, user}).
-app.post('/api/slop/test', (req, res) => {
+app.post('/api/slop/test', manage, (req, res) => {
   const body = req.body ?? {};
   const item = slop.handleRedemption({
     id: `test-${Date.now().toString(36)}`,

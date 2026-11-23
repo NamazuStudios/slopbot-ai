@@ -27,8 +27,12 @@ npm start
 
 Then:
 
-1. Open `/auth/twitch` and follow the one-time channel authorization.
-2. Set your channel in the deck's ⚙ settings (or `slop.json` → `"channel"`).
+1. Open `/auth/login` and log in with Twitch (registers your session; the
+   first login manages the tenant until you set `"channel"` in the deck's ⚙
+   settings, after which only that channel's streamer and configured
+   `superusers` can manage).
+2. Open `/auth/twitch` for the one-time bot/channel authorization (separate
+   from your user login).
 3. Point an OBS browser source at `http://localhost:3000/slop` (1920×1080).
 
 Config lives in `slop.json` (created from defaults on first run — see

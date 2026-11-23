@@ -3,13 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>twitch-three-js — deck</title>
+  <title>SlopBot AI — deck</title>
   <link rel="stylesheet" href="deck.css">
 </head>
 <body>
   <div id="deck">
     <header>
       <h1>Stream Deck</h1>
+      <div id="auth-status">
+        <span id="auth-user" hidden></span>
+        <a id="auth-login" href="/auth/login" hidden>Log in with Twitch</a>
+        <a id="auth-logout" href="/auth/logout" hidden>Log out</a>
+      </div>
       <div id="twitch-status">
         <span class="dot" id="twitch-dot"></span>
         <span id="twitch-text">twitch: checking…</span>

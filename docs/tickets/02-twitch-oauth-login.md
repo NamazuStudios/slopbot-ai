@@ -1,36 +1,47 @@
 # Ticket 02 — Per-user Twitch OAuth login
 
-## Context
+**Status: implemented** (single-tenant form). The Namazu Elements deployment
+form (Elements-issued sessions, per-pod OIDC) is ticket 07's cutover.
 
-The reference implementation has one channel-level authorization
-(`/auth/twitch` → EventSub credentials). The product requires **all auth
-through Twitch login** at the user level: every visitor logs in with Twitch,
-and a logged-in streamer manages *their own* tenant.
+## Reference
 
-## Scope
+Implemented following the Namazu Elements manual
+([NamazuStudios/elements-manual](https://github.com/NamazuStudios/elements-manual)):
 
-- Real Twitch OAuth login (implicit or authorization-code + PKCE) on the
-  landing page. The placeholder button links to the existing flow until this
-  lands.
-- Session issuance after login (signed cookie or JWT). Sessions carry:
-  Twitch user id + login, display name, profile image, and role
-  (streamer / viewer / moderator / superuser — see ticket 08).
-- Resolve the logged-in user's tenant: a streamer's session maps to their
-  pod/registry; non-streamers get viewer-level access (track their creations,
-  see decks read-only).
-- Every management route (registry, settings, moderation, play) requires a
-  valid session; `401` otherwise. The deck UI switches from operator-mode to
-  logged-out mode cleanly.
-- The channel-level EventSub authorization (bot credentials) remains a
-  separate, admin-level flow — it must not be confused with user login.
+- **"Setting Up Twitch OIDC Login (Backend)"** — the browser-redirect flow:
+  deterministic callback URL (must match the Twitch app registration
+  byte-for-byte), scopes MUST include `openid` (Twitch returns no id_token
+  without it) plus `user:read:email`, and **Client-Secret-POST** for the token
+  exchange (`tokenEndpointAuthMethod: Client Secret Post` — never Basic).
+- **"User Authentication in Elements" / "Sessions"** — identity verified
+  authoritatively server-side; sessions are bearer credentials presented on
+  every call. Here the session rides an HttpOnly, SameSite=Lax cookie
+  (HMAC-signed payload: Twitch id, login, display name, image, role, expiry —
+  7 days); Elements' own session secret replaces it at cutover.
+- Provider name becomes the callback path, as in Elements'
+  `/oidc/twitch/callback` — here `/auth/login` → `/auth/callback`.
 
-## Acceptance
+## What was built
 
-- Logging in with Twitch on `/` returns to a personalized dashboard.
-- A logged-out visitor cannot mutate anything.
-- Sessions expire and re-auth cleanly.
+- `lib/auth.js` — OAuth flow, session issue/verify, role resolution, the
+  `requireManager` gate.
+- Routes: `/auth/login`, `/auth/callback` (state-cookie CSRF check),
+  `/auth/logout`, `GET /api/auth/me`.
+- Roles: `superuser` (configured `superusers` list in `slop.json`, now a
+  deck-editable config key), `streamer` (login matching the configured
+  channel), `viewer`. Fresh install with no channel = local dev mode (any
+  login manages the tenant); fails closed the moment a channel is set.
+- Management gate: every deck/operator route (config, triggers, build, queue,
+  moderation, pause/resume, rewards, delete, synthetic dispatch, stinger POST)
+  requires streamer/superuser — `401` anonymous, `403` viewer. Viewer/OBS
+  endpoints stay open: snapshot, events (SSE), bundles, heartbeat, end
+  reports, cameo plays.
+- Deck UI: auth bar (who am I + login/logout), and any 401 response flips it
+  back to logged-out mode.
+- Landing page: the login button now drives the real flow.
 
-## Depends on
+## Remaining for the Elements deployment
 
-- Ticket 07 (Elements issues per-pod OIDC) for the deployed form; locally this
-  ticket stands alone.
+- Session issuance moves to Elements (its session secret, `Authorization:
+  bearer` header form per the manual's Sessions page).
+- Impersonation/`superuser` privileges — ticket 08.

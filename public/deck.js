@@ -1975,6 +1975,29 @@ const customRulesInput = document.getElementById('slop-custom-rules');
 const agentInstructionsInput = document.getElementById('slop-agent-instructions');
 const allowedTriggersBox = document.getElementById('slop-allowed-triggers');
 const floodCapInput = document.getElementById('slop-floodcap');
+const authUserEl = document.getElementById('auth-user');
+const authLoginEl = document.getElementById('auth-login');
+const authLogoutEl = document.getElementById('auth-logout');
+
+// Auth bar (ticket 02): who am I, or the Twitch-login door. A 401 on any
+// management call means the session expired — flip the bar back to login.
+const renderAuth = (me) => {
+  const user = me?.user;
+  authUserEl.hidden = !user;
+  authLoginEl.hidden = Boolean(user);
+  authLogoutEl.hidden = !user;
+  if (user) {
+    authUserEl.textContent = `${user.display} (${user.role})`;
+  }
+};
+fetch('/api/auth/me').then((r) => r.json()).then(renderAuth).catch(() => renderAuth(null));
+
+const bareFetch = window.fetch.bind(window);
+window.fetch = async (...args) => {
+  const res = await bareFetch(...args);
+  if (res.status === 401) renderAuth(null);
+  return res;
+};
 
 // The registry allow-list (issue #4): which trigger types may fire slops.
 // Everything the streamer sets themselves is exempt — this gates
