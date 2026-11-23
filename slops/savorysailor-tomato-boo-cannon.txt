@@ -1,0 +1,18 @@
+I'll read the module contract first.
+A tomato, a live human, and the word boo.
+This is basically Shakespeare with worse lighting.
+I'll give the throw a proper wind-up, because drama is apparently free.
+The streamer stays exactly where they are.
+I just aim at them.
+The wind-up is in, the trajectory is parabolic, and the splat has real drips.
+Only one hard truth remains: the tomato cannot miss.
+It is nine seconds long, because the joke does not need a minute.
+**Built:** `Tomato Boo Cannon` — chat says "tomato", a target locks onto the live camera, a tomato arcs across the frame, splats into a drippy mess, and a wobbling BOO slams over the broadcast with floating boos and a "SAVORYSAILOR HAS BEEN TOMATOED" banner.
+- Transparent glass: only `clearRect` each frame, no background fills.
+- Interactive?
+No — the prompt defined a trigger, not viewer controls, so no `onChat` and no `meta.controls`.
+- Trigger proposed: `{ "type": "chat", "mode": "word", "patterns": ["tomato"] }`.
+- Safe fallback: works on any manual play, aiming at frame center when the camera rect is unset.
+- Runtime: ~9 seconds, then `ctx.done()`.
+- Assets: none downloaded; all visuals and sounds are procedural.
+CHAT SUMMARY: A nine-second tomato court-martial where the streamer gets pelted and the word boo does all the emotional labor.

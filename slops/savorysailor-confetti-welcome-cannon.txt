@@ -1,0 +1,10 @@
+I'll read the guide first, then check what the deck already has.
+The prompt is a welcome note, so this is a door-greeting, not a plot.
+I'll build a confetti welcome cannon that announces the guest over the live picture.
+The cannon is built and syntax-checked; the glass stays clear and the live shot is the stage.
+A pink banner drops in over the real streamer, because nothing says "welcome" like covering someone's face with their own guest's name.
+Confetti bursts from both corners and rains over the live picture while a gold crown lowers onto the streamer's feed and a "ENJOY THE SLOP!" tag snaps in at the punchline.
+It ends on its own beat, no dead air, no lingering confetti, no sequel.
+No opaque fills, `clearRect` every frame, `ctx.done()` at the end.
+No chat controls and no triggers proposed, so the server's default activation applies.
+CHAT SUMMARY: A confetti cannon greeted deedeemarie and crowned the streamer like a gold-plated welcome mat.

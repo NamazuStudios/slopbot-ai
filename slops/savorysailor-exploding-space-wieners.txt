@@ -1,0 +1,41 @@
+So chat is getting cartoon astronaut sausages, not a biology lecture.
+Building the act now.
+Sixty seconds, one file, no second takes.
+So the sausages get a script: a launch, a drift, a demonstration blast, a midshow salute, a mothership flyby, and a finale where everybody pops.
+Now the smoke test.
+Write _smoke.mjs in the build dir, run it, delete it.
+File's written.
+Now I torture-test it with a fake canvas for a full simulated minute, chat commands included, so the live debut isn't also the dress rehearsal.
+The repo has a package.json without type:module, so `./slop.js` resolves as CJS.
+Fix: import via explicit .mjs copy?
+No — simplest: import the file by copying slop.js to slop-check.mjs?
+But then I'm testing a copy, same content — fine.
+Or import with query?
+`import('./slop.js?x')` still uses .js extension → CJS.
+Node decides by extension: .js → package.json type.
+So copy to slop-run.mjs and import that.
+Do that in shell then rerun, then delete both temp files.
+Node wants a real module extension — the repo's package.json votes otherwise.
+Copying to a .mjs stunt double and rerunning.
+Clean: only slop.js remains.
+143 sound calls across the minute — the script fired: launches, the demonstration, the salute, the finale, plus chat triggers.
+Report time.
+Report: what I built, path, meta, beat structure, chat commands, safety notes.
+End with CHAT SUMMARY line exactly.
+Keep narration snarky.
+No narration lines mentioning paths — the report body can mention the path since that's the build report to the redeemer, but narration-style lines must be clean.
+I'll keep the report structured, then the final line.
+Smoke test passed and the evidence locker is clean — only the slop itself survived.
+One hundred forty-three sounds in sixty seconds means the whole script fired: launches, blasts, finale, the works.
+- **The cast:** cartoon capsule sausages in glass helmet domes with fins, googly eyes, blinking, blushing during the finale, and wide scared eyes whenever an explosion is queued.
+Pure innuendo, zero anatomy — Twitch gets goofy astronaut sausages, not a biology lecture.
+- **Chat interaction:** `explosion` (also `boom`, `kaboom`, `detonate`) queues a detonation with a 0.3s cooldown; `launch` recruits a new wiener.
+If the sky is empty, one is conjured just to be popped — instant gratification.
+Raw viewer text is never drawn; only commands are read.
+`meta.controls` is set so viewers know the menu.
+- **Contract compliance:** transparent glass — `clearRect` every frame, no background fill anywhere; stars are dots, the stream shows through.
+All audio is synthesized `beep`/`noise`, no downloaded assets, no DOM, no timers, no network.
+Cameo slot left unused on purpose.
+- **Verified:** a simulated full minute with fake chat commands ran clean, and `dispose` is a safe no-op.
+The build directory contains only `slop.js`, ready for the server's renaming ceremony.
+CHAT SUMMARY: I gave chat sixty seconds of helmet-wearing cartoon sausages with a self-destruct button, and somehow that is the most organized thing on the stream.

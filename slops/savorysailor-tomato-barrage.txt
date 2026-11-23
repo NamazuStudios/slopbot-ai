@@ -1,0 +1,10 @@
+I'll read the agent contract first to make sure I nail this.
+Got it.
+Reading the contract now.
+The prompt asks for tomatoes to be thrown at the streamer when someone says "tomato" in chat, with more tomatoes for each time someone says "boo".
+This is straightforward and clean.
+Let me break down what I need: - Trigger: "tomato" keyword in chat (triggers one tomato throw) - Escalation: "boo" in chat during the play increases tomato velocity/volume - Safe fallback: The slop works on manual play too with default tomatoes - No opaque backgrounds, transparent canvas - Keep it under 60 seconds, land the joke early - It's interactive ("say boo" and "say tomato"), so I need `onC
+Alright, we're firing tomatoes at the streamer when they say the magic word—and boo makes them angrier.
+Done.
+Built a tomato barrage that fires when chat says the magic word, escalates with boo—SavorySailor's about to get pelted in real time.
+CHAT SUMMARY: Tomatoes rain down on the streamer's head every time chat says the trigger words, with angrier throws for each boo.

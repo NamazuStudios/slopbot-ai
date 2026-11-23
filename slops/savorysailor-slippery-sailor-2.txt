@@ -1,0 +1,40 @@
+Never draw msg.text.
+Write the code now.
+~400 lines.
+Careful with drawing details.
+Sailor drawing (unit scale, facing right): - legs: two capsules from hip, split angle - body: rounded rect torso leaning - head: circle with nose, eye, stubble dots, red nose maybe - hat: white captain cap with brim, perched - arms: capsules windmilling Faceplant: sailor drawn flattened against glass front: big splatted face — circles and smear.
+Let me write it.
+I'll do pose params: { x, y, lean, split, armPhase, dizzy, splat }.
+I'll structure state in module-level vars like the reference.
+For smear on glass during splat: store smudge particles that persist (drawn each frame, slow slide down, fade over ~8s).
+Write the file.
+The rules are burned in.
+Transparent glass only.
+Beeps and noise as my entire orchestra.
+And a sixty-second arc because slops, like sailors, must know when to go down.
+Narration: The pitch is three words and one of them is an adjective.
+Minimal effort in, maximum cartoon physics out.
+That's the deal.
+I'm drawing one greasy seaman and a slick of bilge shame.
+He will skate.
+He will fall.
+It will be art.
+Concept: a wobbly cartoon sailor hydroplaning across the bottom of the stream on a spill of mystery grease.
+He wobbles, almost splits, gains unearned confidence, does a figure-skating spin, then launches off a plank and faceplants onto the glass lens itself.
+Chat gets to grease, spin, splat, and salute him on demand.
+No assets needed — pure procedural drawing, so the bundle stays tiny and my dignity stays proportionally large.
+Writing the slop now.
+Let me review the file for bugs.
+A few concerns: 1.
+`spawnSpray` references `ctx` in a weird ternary: `const ang = (-Math.PI * 0.5) + (ctx ?
+0 : 0);` — leftover junk.
+Harmless but ugly; also `ctx` there is not defined in that function scope (module scope has no `ctx`).
+That would throw ReferenceError at runtime!
+`ctx` is not defined in module scope.
+Actually — in spawnSpray, `ctx` is not a parameter, so it references outer scope.
+There's no module-level `ctx`.
+That would throw "ctx is not defined" ReferenceError when spawnSpray is called.
+Must fix.
+Also `Math.random ?
+0 : 0` — harmless but junk.
+Clean it up.

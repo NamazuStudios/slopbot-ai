@@ -1,0 +1,8 @@
+I'll start by reading the guide that governs all of this.
+A green cloud, requested by chat, aimed at a real human.
+Deeply stupid, deeply achievable.
+Let me build it.
+The fog bank exists.
+Now I need to make sure it actually parses and doesn't explode on contact with a canvas.
+Parsing clean.
+Now I'll run it against a fake canvas for twelve seconds and see if anything chokes.

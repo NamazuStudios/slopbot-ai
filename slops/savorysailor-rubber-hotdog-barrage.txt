@@ -1,0 +1,5 @@
+I'll start by reading the module contract.
+The contract is clear.
+Transparent glass, hotdogs as physical projectiles, and the real SavorySailor's camera rect gets used as a bounce pad.
+Here's the plan: a four-second barrage, chaotic rubber physics, and a caption that takes no responsibility.
+Now a quick syntax check, plus one cleanup of a leftover no-op.

@@ -1,0 +1,40 @@
+Actually 4 fine but each must do something immediately.
+I'll do 3.
+No assets needed — use beep/noise.
+Simpler, no downloads.
+Colors: read well over navy and pink — use accent pink for sub hull highlights, white/light, yellow.
+Write the code carefully.
+State in init: module-level state object.
+frame(ctx,t,dt).
+onChat sets flags.
+Let me write the code.
+Key elements: - clearRect first every frame.
+- Sub: rounded body, conning tower, periscope, portholes glowing yellow.
+- Bubbles particle system.
+- Sonar rings array.
+- Torpedo array.
+- Tentacle: drawn as bezier sine arm.
+- Wobble via sin.
+Chat handling: onChat pushes events; frame consumes.
+Commands: 'ping', 'dive', 'torpedo', 'kraken'?
+keep three: ping, dive, torpedo.
+Also auto-arc triggers tentacle at t=32 regardless.
+Sound triggers: keep track of lastPingT to avoid spamming; use ctx.sound.beep and noise.
+Write it.
+I've read the sacred scrolls.
+The prompt is one word: "submechnophobia." The fear of submarines.
+So naturally, the correct response is to build a submarine and give it a full dramatic arc, a kraken attack, and chat-controlled torpedoes.
+Therapy through exposure, but on a Twitch overlay.
+Narration for the folks at home: The viewer typed one word.
+One.
+I've been given less direction than aHeadless chicken.
+So we're getting a submarine.
+If you fear submarines, look away.
+Or don't, there's a kraken coming.
+The canvas stays transparent, because the stream is the ocean now.
+Congratulations, chat, you're all wet.
+Let me build it.
+I left a leftover dead function `subPose` referencing W0/H0 placeholders — it's harmless but sloppy.
+Let me clean it up.
+Also `Math.random !== undefined` dead branch — remove.
+Quick edits.

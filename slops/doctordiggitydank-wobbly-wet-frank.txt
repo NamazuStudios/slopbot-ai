@@ -1,0 +1,4 @@
+I'll start by reading the module contract.
+The original has a walking cartoon and a hotdog that lives *on top* of the dress.
+Time to demote the frank to the back of the wardrobe and give it a moisture problem.
+Now I check that the frank actually parses, and not just spiritually.

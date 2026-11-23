@@ -1,0 +1,40 @@
+Also check `nvm list`.
+Also — maybe the error is not from node but from something else?
+The message format is nvm-windows'.
+Let me check for .nvmrc files and run `nvm list` (fix the head issue — use Get-ChildItem or just run nvm list alone).
+`node --version` fails in the build dir but not the repo root — likely an nvm config file.
+Let me check.
+The `nvm list` output shows 22.18 and 22.1.0.
+The Get-ChildItem calls output nothing visible (no .nvmrc files found — or output was empty).
+Hmm, the nvm list shows "22.18" and "22.1.0" — 22.
+1.0 is the active one (matches node --version earlier).
+So why does node fail in the build dir?
+Maybe...
+No — Get-ChildItem of the build dir (with -Force -Hidden) returned nothing?
+Actually the output shows nothing for the first three Get-ChildItems — hmm, but earlier `Get-ChildItem -Path ...slop-mwpcl2mv-0` (without -Force) showed nothing (empty dir) and the glob `.slop-builds/**/*` found nothing.
+The -Force might not be needed...
+whatever.
+Wait — maybe there IS an .nvmrc somewhere in the build dir chain?
+The Get-ChildItem with -Hidden on the build dir printed nothing...
+so no .
+nvmrc in the build dir.
+But nvm-windows auto-switching reads .nvmrc — only if configured.
+Hmm, let me think differently: maybe `node` isn't found via PATH in the build dir — but the error message is the nvm "no active version" message, not "not recognized"...
+Actually wait — maybe the problem: `node.exe` is a shim that reads nvm settings; the "No active Node.js version" error occurs when nvm's "dynamic" switch is on and there's no .nvmrc...
+but then it would fail everywhere.
+Hmm — could it be that in the build dir there's a `node.exe` or similar shadow?
+No.
+Let me just try running node with the full path or check where node resolves: `Get-Command node` in the build dir.
+Actually — simpler theory: The `nvm.exe` wrapper: when it can't find an active version it prints that message.
+The "active version" is stored in nvm's settings.
+But earlier `node --version` in repo root worked...
+unless the earlier success was from a different resolution.
+Wait — maybe the difference: in the build dir, nvm looks for .nvmrc in the current directory and finds one?
+Let me check again more carefully — Get-ChildItem with -Force on the build dir — the output printed nothing before " 22.18 " — so the dir is empty.
+Hmm.
+Actually — hold on.
+Maybe the issue is the earlier command output confusion: in the run before, I ran `node --version` (failed) — then `nvm current` didn't run because `head` isn't available.
+In the latest run: `node --version` failed again, then nvm list printed.
+So node fails in build dir, works in repo root.
+What differs?
+Hmm — is there a `.node-version` file in the repo root?

@@ -1,0 +1,40 @@
+The plaque is placed at (0, -200) to sit just above the heart's upper lobe.
+Elon's head is centered at (0, -148) with hair extending to -185, keeping the plaque clear of both the heart and the character.
+The stage base will sit at floorY with a height of 250*S, aligning its floor with the chair floor.
+The heart top will land at 0.507H, keeping it above the scene band and clear of the title.
+The chair will slide in horizontally from -380*S to 0 rather than vertically, preserving the vertical math.
+The stage will slide in from +320*S to 0.
+During exit, both the stage and the chair will drop by a calculated exitY and fade out.
+A wrapper save will apply the shake offset, vertical shift, and alpha to the entire scene.
+Popups and the title will also shake to feel physical, though the title does not need the exit fade.
+The stamp will remain visible for six seconds and then ride the exit with the set.
+It will not fade early.
+The global alpha and shake transforms apply to the stamp and all particles together.
+The canvas will be cleared before the alpha save so the last two seconds render as empty glass.
+The frame function will exit immediately after that clear once the slop ends.
+A speech bubble will be drawn above the character's head inside the transformed space.
+Spawn coordinates will be set in scene space, using only the chair and stage slide offsets.
+Shake and exit transforms are applied afterward by the camera wrapper, so particles remain in unshaken scene space and move with the set.
+The character head will track the chair’s horizontal position and a vertical drop offset that is zero after landing.
+A small visible nozzle will sit at the upper right of the heart to mark the rocket launch point.
+The author is now writing the complete file.
+Global state will store the current time and key scene coordinates so chat commands can spawn particles at the correct positions.
+The init function will estimate these values on the first frame, and the frame function will update them every frame so late chat messages still spawn in the right place.
+Particle types are now defined: dust, spark, heart, smoke, tissue, spray, confetti, note, and tear.
+Notes will be capped to avoid slow text rendering.
+Raw viewer text and usernames will not be drawn onto the canvas.
+All loops are bounded to prevent infinite loops.
+Hearts will spawn once per curtain thump cycle.
+Particle counts are capped to keep the slop lightweight: one heart per thump, plus a few scripted ones, 24 confetti on the stamp, and 16 dust on slam.
+A waltz note will spawn every half-second during the dance, up to 12 particles total.
+The dance window opens once the curtain is 72% open or the host is dancing, so spoiling the curtain early unlocks the music as a reward.
+The stage interior will be a solid deep plum so the appliances pop.
+Each prop gets a distinct palette: the Roomba is silver with a red bowtie and black hat, the toaster is chrome with pink blush and a red rose, the toast is amber with a face, the table is wood, the candle is cream with a yellow flame, and the tent card is paper with red text.
+A red "LIVE" badge will pulse slowly on the marquee.
+The marquee will use nine bulbs that shift one every 0.67 seconds, avoiding any strobe.
+The cupholder can will stay visible beside the seat so the crash has a clear target.
+The scripted rocket will be aimed from the heart nozzle and land in the can after a 2.2-second flight, using a vertical velocity of -340 * S.
+The scripted rocket’s vertical velocity is raised to 380*S and gravity to 345*S so it lands in exactly 2.2 seconds.
+Chat rockets will use a wider random horizontal spread and explode on a timer or when they fall below the floor.
+The first chair already had its stainless tragedy.
+This one comes back with a velvet heart, a firmware sticker, and a reservation that was never his.

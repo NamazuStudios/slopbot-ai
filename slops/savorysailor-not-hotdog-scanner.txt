@@ -1,0 +1,15 @@
+I'll start by reading the module contract.
+The contract is clear.
+Now the art: a phone app with a pavlovian need to identify hotdogs, pointed at a person who is definitely not one.
+Not hotdog.
+Not hotdog.
+Not hotdog.
+That is the entire algorithm and it has never been wrong except once.
+I built a tiny app window that leans into frame, frames SavorySailor in green brackets, and sweeps the live shot with a scan line until it has an opinion.
+The opinion is no.
+Then it checks the desk chair, the microphone, the moon, and the streamer's soul, and the answer is still no.
+Then it gets brave and announces that the person on camera is a hotdog, with fifty-one percent confidence, which is apparently enough for confetti and a fanfare.
+The correction arrives four seconds later, along with an auto-generated apology and one very quiet brass sound.
+It ends at about nineteen seconds, because a gag about never finding a hotdog does not need a minute.
+Two or three notes: transparent glass throughout, no stand-in character for the human, and no dead air at the end.
+CHAT SUMMARY: A hotdog detection app confidently scans the entire stream, finds zero hotdogs, briefly accuses the streamer, and then apologizes to everyone involved.

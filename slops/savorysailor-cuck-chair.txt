@@ -1,0 +1,40 @@
+Countdown: also beep at each second: once('cd'+k, t >= T_CNT + k).
+Edge: LAUNCH pulled earlier after beats fired — e.g., cd beats keyed on old LAUNCH.
+Keyed by 'cd'+LAUNCH+''; if launch changes mid countdown, whatever — acceptable.
+Write the file now.
+Also need `easeOutCubic` etc.
+Time to write narration lines between steps.
+I'll do narration now (as part of response text before/around tool calls) — short sarcastic sentences.
+Now write slop.js.
+Also: draw floor shadow: ellipse under chair, semi-transparent black — fine (not opaque bg, it's a shadow).
+Rope + hook during descent, plus a little crane hook.
+Cute.
+Also "TOP SECRET" tag on rope?
+Keep the caption instead.
+Deterministic rand: use ctx.rand() seeded — but careful: calling rand() in draw changes per frame?
+ctx.rand() is seeded RNG — presumably deterministic sequence per call count, which would vary if call counts vary per frame (shake calls rand only sometimes → desync).
+Avoid rand() in drawing except where nondeterminism is fine (shake, coin pitch).
+For positions use math (sin/hash).
+OK.
+hash(i) = fract(sin(i*127.1)*43758.5453).
+Write it.
+Total code ~380 lines.
+Go.
+Oh, a two-word prompt about a billionaire's furniture.
+Riveting commission.
+Truly the Sistine Chapel of our times.
+Let me read the house rules first — done that — and now let me think out loud about this artistic endeavor.
+The concept writes itself.
+A tiny plastic garden chair descends from heaven.
+A certain rocket-obsessed cartoon baron inspects it like it's a Mars lander.
+Then we bolt engines to patio furniture, because that is literally this man's business model.
+I shall build it with pure canvas drawing and beep-based sound design.
+No downloads needed.
+The chair deserves handcrafted pixel labor.
+Now write the slop.js file.
+The build directory exists.
+The assets folder will remain gloriously empty, because the chair's scream will be synthesized from sine waves.
+Dignified.
+Now the anatomy of the piece.
+Sixty seconds, one arc: descent, inspection, sitting, boosters, liftoff, orbit, reentry, catastrophic patio furniture failure.
+Classic three-act structure, as taught in film school by a Roomba.

@@ -1,0 +1,41 @@
+hailPlayed=2.
+Frame t=5: plays('hail2', 494)...
+up to hailPlayed=5 at some frame.
+So hailNotes gets [440,466,494,523,554] — 5 notes within hail window.
+Then `!robe` at at=12 — after frame at t=12 with beep → afterRobe.
+My test structure should pass.
+Also `!brat` at 15 — but my frames after hail: I had `ns.frame(ctx, 8, 0.1)` etc.
+Let me restructure the test: ``` frame(2); onChat !coins(2); frame(2.5); frame(3); onChat !hail(3); frame(3.5); frame(4); frame(4.5); frame(5); frame(5.
+5); frame(6); frame(6.5); frame(7); frame(12); onChat !robe(12); onChat !brat(15); frame(15.5); then run t=0..60 loop for clearRect counting.
+``` Then assert hailNotes.length >= 3.
+Also the fail message "FAIL: hail fanfare too quiet" — assert: hailNotes.length >= 2 && hailNotes[0] === 440.
+Also check hailSparkles >= 4 (sparkles drawn in hail window — 6 per frame, but many frames...
+just >= 1).
+Let me rewrite the test.
+Also, the "amb" beeps — stats.beep includes them; my assertions compare deltas (afterCoins etc.) so ok.
+Actually also in the first version of the test, note the !
+hail set hailUntil=5.6 and no frames ran during [3,8] — that's why empty.
+Yes test bug.
+Rewrite test now.
+That's a test-schedule bug on my side — I set `!hail` at t=3 (window until t=5.6) but the next frame was t=8, so the hail window was skipped entirely; the slop was fine.
+Rewriting the harness with frames inside the hail window:All chat commands work: - !coins → 1 beep ✓ - !hail → 6 hail beeps (fanfare arpeggio) ✓ - !robe → 2 beeps ✓ - !brat → 2 beeps ✓ - hail sparkles drawn ✓ - clearRect every frame (74 = 61 + 9 chat frames + ...
+roughly) ✓ - noise from ambient/parade sounds ✓ The smoke test passes.
+Now the final report.
+Narration: sarcasm about the art, short punchy sentences, one per line.
+Constraints for narration text (public chat): remarks about the art only — no file paths, no system details, no usernames, no links/tokens.
+Let me write 6-8 short lines: 1.
+Unclothed emperor waddles across an empty canvas, no robe, no shame.
+Worms prefer the unseeing — they lose their heads after six seconds anyway.
+The brat shout lands at 42–56, so viewers get the punchline before theCredits?
+no.
+Chat commands: !coins !hail !robe !brat — loud and immediate, Twitch viewers love noise.
+Transparent glass confirmed — clearRect every frame, the stream shines through, as a good canvas should.
+Now write the final message.
+Smoke test passes — all four chat commands produce sound and visuals, every frame is cleared.
+The slop is done and written to the build directory.
+The unclothed emperor waddles across an empty canvas, no robe, no shame.
+Worms prefer the unseeing — they lose their heads after six seconds anyway.
+The brat shout lands at 42–56, so viewers get the punchline before the parade winds down.
+Chat commands for the people: !coins, !hail, !robe, !brat — loud and immediate, Twitch viewers love noise.
+Transparent glass confirmed — clearRect every frame, the stream shines through, as a good canvas should.
+CHAT SUMMARY: A bald orange emperor, zero pants, and a parade of worms — Twitch's TOS writers will have nothing to fuss about.

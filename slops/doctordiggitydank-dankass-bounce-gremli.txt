@@ -1,0 +1,8 @@
+I'll start by reading the module contract.
+It's a transparent 300-pixel orange gremlin, which is honestly more effort than the joke deserves.
+Fine, it can bounce.
+He is already spinning up the physics engine behind his eyes.
+My plan is simple.
+Let the thing ricochet off the walls like a caffeinated pinball.
+Then let it fixate on the real camera feed and drop onto the streamer's actual head.
+I will name names, because the live human deserves the credit for this.

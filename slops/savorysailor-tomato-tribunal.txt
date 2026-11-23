@@ -1,0 +1,25 @@
+I'll start by reading the module contract.
+A tomato tribunal, aimed squarely at the live camera.
+The tomatoes are the stars.
+SavorySailor is the target.
+Naming them is the only character work required.
+The court is now in session.
+Every tomato is fired from an analytic arc, so no produce is harmed by math.
+First throw gets a lonely arc and a splat on the glass.
+Then the chat finds the word tomato, and the sky fills up.
+A giant tomato drops on the live shot, a typed-in box spells the verdict, and the case closes with a card.
+Fifteen seconds, no dead air, no filler.
+The streamer camera stays the target through all of it.
+No cartoon sailor walks in to take the hits.
+SavorySailor is right there, and that is the whole joke.
+The splats are translucent on purpose.
+We are rude to the camera lens, not to the broadcast.
+Built `slop.js` for the Tomato Tribunal: transparent-glass overlay, `clearRect` every frame, splats and produce drawn over the live shot, aimed at `ctx.streamer` with a center-frame fallback.
+- **Arc:** BOO.
+→ a single tomato → the motion carries → typed-in TOMATO → produce rain → verdict card reading TOMATOED, with a live tomato counter.
+- **No character stand-in:** the streamer is only named in captions; effects target their camera rect.
+- **Triggers:** chat word `boo` and chat word `tomato` (no exclamation marks — the prompt didn't contain one).
+- **Length:** calls `ctx.done()` at ~15.4s, no tail padding.
+- **Interactivity:** none requested, so no `onChat` and no `meta.controls`.
+- **Audio:** procedural only — whooshes on throw, low thuds on impact, no assets bundled.
+CHAT SUMMARY: We put SavorySailor on trial for the crime of being visible and the tomatoes have already voted guilty.

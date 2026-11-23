@@ -1,0 +1,11 @@
+The yogurt has landed on the live shot, because apparently that is what we're doing today.
+The suit is drawn as a jacket around the actual frame, not as a stranger in a costume.
+That's the one line I will not cross, even for this.
+The shoes got the full gold-buckle patent-leather budget.
+They are easily the best-dressed thing on this canvas.
+A closed-eye smile and little hearts sell the pleasure.
+The real streamer gets to keep their actual face under all that dairy.
+Built `slop.js` in the build directory: a ~16-second transparent-glass piece where a yogurt blob splats over the live camera, a tuxedo jacket and bow tie sweep around the frame, immaculate glossy dress shoes with gold buckles appear with sparkles, and the whole rig pulses in an accelerating hip-thrust rhythm with speed lines, floating hearts, a BLISS meter, and captions naming SavorySailor.
+Fancy shoes get a golden spotlight for the punchline, sounds are procedural beeps and whooshes, and `ctx.done()` fires right after the final caption.
+No stand-in character for the streamer, no opaque background, no triggers (none were requested), no chat interaction.
+CHAT SUMMARY: SavorySailor's face is now a yogurt cup in a rented tux, and the shoes are carrying the entire production.

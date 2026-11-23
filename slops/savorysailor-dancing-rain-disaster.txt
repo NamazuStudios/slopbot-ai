@@ -1,0 +1,5 @@
+Lightning, ducks, questionable choreography — this one has range.
+A stick figure is about to get emotionally soaked over the live gameplay, and the stream will simply have to watch.
+The rain starts as a drizzle, the dancer arrives around second five, the storm escalates on schedule, and a rubber duck backup squad shows up because gravity of plot demands it.
+No opaque glass over your gameplay — everything floats, the stream stays visible through the downpour.
+A few stray code crumbs to sweep out before the storm hits — dead loops and a no-op block that do nothing but embarrass me.

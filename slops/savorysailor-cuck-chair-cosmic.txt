@@ -1,0 +1,40 @@
+Good, with bounce wobble.
+Liftoff: if st>LIFTOFF: dy = 240*S*Math.pow(st-LIFTOFF,2); cy = groundY - dy.
+Chair off top when groundY - dy < -250*S → dy > groundY+250S ≈ 0.8H+250S; with 240*S*(t^2), t≈ sqrt((0.8*720+250)/240)≈1.65s.
+Good, offscreen by ~st 24.7.
+LIFTOFF=23, space at 27.
+Shake during st in [LIFTOFF, LIFTOFF+2.5]: shakeAmp = 10*(1-(st-LIFTOFF)/2.
+5); translate rand offsets.
+Space chair: after st>28: draw at (W*0.5, lerp y from -150*S?
+to H*0.42 ease 28..34), rot = sin(st*0.6)*0.12.
+Draw same chair small (scale 0.8*S).
+Sitter if present sits.
+Fade: ga = st>57 ?
+clamp((60-st)/3,0,1) : 1.
+Smoke particles during liftoff: spawn each frame at (cx ± rand*80, groundY), gray circles rising slightly, expanding, alpha decay.
+Spark particles during bolt phase.
+Countdown beeps: keys 'c3','c2','c1' at st crossing 14.2/17.2/20.2, beep(440/440/880?).
+Use 523, 523, 1046.
+Landing thump: noise(200) when st crosses 3.4.
+Liftoff: noise(900).
+Draw order: stars, shadow, chair(+flames+smoke behind chair?
+flames under boosters, smoke behind), captions, countdown, tag, sitter within chair draw.
+Implement drawScene per phase with a function drawChairAt(c, x, y, scale, rot, opts{boosters, flame, plaque, sitter, sitterT}).
+Boost phase (!boost) also triggers flame even pre-launch?
+Only makes sense with boosters installed (st>9).
+Allow flame if st>9.
+Alright, code writing time.
+Also caption font.
+One more: meta.assets omitted (no downloads).
+Good — avoids network fuss.
+Narration between steps in my reply.
+Let's write the file.
+Reading the contract, checking the capability line...
+alright.
+"elons cuck chair." A folding chair of shame gets the full NASA treatment.
+Of course.
+The tier is 'anything', the restraint is nowhere.
+My plan: a lonely golden chair materializes in a spotlight, gets rocket boosters bolted on by invisible interns, a countdown nobody asked for, liftoff, and then — because physics is a suggestion — it floats in orbit with a price tag swinging off it.
+Chat gets to light the candle early, airmail a tiny volunteer, overthrust it, and make the plaque say worse things.
+All procedural, no assets, pure canvas sin.
+Writing the file now.

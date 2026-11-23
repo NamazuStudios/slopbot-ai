@@ -1,0 +1,7 @@
+I'll start by reading the module contract.
+Reading the contract and then building: a cat, a fish, and absolutely no dignity.
+A cat will squat, produce a whole fish, then eat that fish with the confidence of a nature documentary.
+No streamer stand-in.
+Just a caption over the real footage and a cat doing crimes near the frame.
+The cat is done producing.
+Now I check that the code actually runs instead of just looking confident.

@@ -1,0 +1,7 @@
+I'll start by reading the module contract.
+The brief is a robot with a mayonnaise problem and a temper.
+No interaction requested, no schedule requested, so it stays a pure animation.
+Let me build it.
+The robot gets a full minute of feelings, and I get to animate a condiment crime scene.
+Delightful.
+Now a quick sanity check that it parses and that the module exports what the host expects.

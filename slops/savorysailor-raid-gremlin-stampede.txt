@@ -1,0 +1,12 @@
+I'll start by reading the contract that governs this whole operation.
+The contract is read, so now I get to make a raid happen without any actual raiders.
+Great.
+Time to gather the horde.
+I have 34 tiny troublemakers and one rubber duck to schedule.
+Every good invasion needs a soundtrack.
+Mine is three beeps and a whoosh, which is honestly more than most raids deserve.
+Now the horde gets drawn, bonked into a pyramid, and sent back where it came from.
+The horde is drawn.
+Now I check whether the whole invasion file is even valid, which is the least heroic step of any raid.
+The file parses.
+Now I make it survive forty thousand frames of nonsense and four chat commands, because a raid that crashes is just a Tuesday.

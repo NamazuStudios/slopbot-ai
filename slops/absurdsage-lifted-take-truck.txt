@@ -1,0 +1,13 @@
+I'll read the slop contract first.
+A lifted opinion-delivery vehicle is on its way to explain fairness at you, at volume.
+Please keep your hands and sources inside the ride at all times.
+The mud is load-bearing.
+The truck has arrived, fully lifted, entirely certain, and structurally unable to be wrong.
+Its driver has three arguments and no citations.
+Somewhere in there is a point about fairness; the mud got to it first.
+**Built:** `slop.js` — a ~12.4s transparent-glass act: - A screen-filling lifted pickup rumbles in with exhaust, spinning wheels, and a decaying suspension bounce.
+- The window rolls down and a bald, sunglasses-wearing driver delivers three specious takes in comic speech bubbles, punctuated by DURR / HERP / LEEDLE bursts with matching beeps.
+- A dashed marker and "TARGET AUDIENCE" tag frame the live streamer's camera position instead of drawing any stand-in.
+- Punchline: window up, truck peels out, mud sprays across the glass in the safe outer edges, and a caption apologizes to SavorySailor by name.
+- Pure animation — no chat interaction, no triggers proposed, no external assets.
+CHAT SUMMARY: Built a lifted opinion truck that yells three bad takes and flees before anyone can fact-check the mud.

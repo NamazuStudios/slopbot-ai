@@ -1,0 +1,7 @@
+The milk bandit is built: a censored little gremlin with a grey mohawk, a squirt bottle, and zero anatomical ambition.
+He charges in from the left, ping-pongs across the glass, and paints the stream with milk while SavorySailor gets a formal apology.
+The milk drips down the screen, "got milk?" lands with letter-drips, and then he screams DIGGITY five times and sprints off the right edge.
+No opaque backgrounds, no stand-ins for the real streamer, no chat commands, no assets, and no filler tail frames.
+It calls time at about fifteen seconds and leaves before it overstays.
+Built `slop.js` in `.slop-builds/slop-mwtnbpy8-157/` — clears the canvas every frame, keeps the live shot visible, times out clean at ~15s, syntax-checked and simulated through the full run.
+CHAT SUMMARY: A censored mohawk man hoses your broadcast with milk, screams DIGGITY, and leaves you to clean the lens.

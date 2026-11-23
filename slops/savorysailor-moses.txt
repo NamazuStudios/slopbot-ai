@@ -1,0 +1,40 @@
+If it uses `import()`, then since package type is commonjs, dynamic import of slop.js would treat it as CJS → fail.
+Unless Node's detect-module...
+Node 22.1 — module syntax detection?
+Hmm — actually, in Node 22, `--experimental-detect-module`...
+I recall "module: syntax detection" — `require(esm)` was added in 22.12/23 — but the FLAG `--experimental-detect-module` was added earlier (Node 20.10?).
+Hmm.
+Actually, there's another possibility: lib/slop.js might use `vm.compileFunction` or `new Function('exports', code)` or `import()`.
+Let me look at lib/slop.js.
+Also, maybe there's a slops/package.json that my Get-ChildItem missed?
+-Force was used in batch 2 for slops?
+I ran Get-ChildItem on slops with -Force in batch 2 (first call) — it listed assets, AGENTS.md, slops...
+wait the second result — slops listing — was it with -Force?
+The output listed files.
+If -Force wasn't passed and there IS a package.json in slops (hidden-ish?
+no, package.json isn't hidden) — unlikely.
+But let me re-check with -Force to be thorough.
+Let me grep lib/slop.js for how it loads: grep pattern "import\(|require\(|vm\.
+|SourceTextModule" in lib/slop.js.
+And Get-ChildItem -Force on slops dir again.
+Also — how does the slop host run the slop: the slop.html?
+public/slop.html loads slops in an iframe via script type=module?
+The server bundles?
+The slop machine — lib/slop.js — bundles slop.js?
+"slop.bundleHandler" — /api/slop/bundle/:name — the server bundles the slop file!
+Interesting.
+Let me read lib/slop.js — it's the authority on how slop.js is loaded.
+For my smoke test: if the server loads slops via dynamic import() and package type is commonjs — then slop.js as ESM can't be imported...
+unless lib/slop.js uses a bundler (esbuild is in node_modules?
+package.json deps: express, three, ws — no esbuild.
+But node_modules might have more via transitive).
+Let me read lib/slop.js and check.
+Node 22.1 + type commonjs + `import()` of .
+js → loads as CJS → `export const meta` → SyntaxError?
+Hmm wait — actually I'm not 100% sure: dynamic import() — the module type is determined by package.json "type" — commonjs → CJS — CJS parse of `export` → SyntaxError "Unexpected token 'export'"?
+Actually — hmm, in newer Node versions there's syntax detection for ambiguous files, but "commonjs" in package.json makes it explicitly CJS — no detection.
+Hmm wait — but actually let me reconsider: Node 22.
+1 — I believe module syntax detection for files with no type in package.json: `--experimental-detect-module` — added v22.7.0 (unflagged default in v23.0?
+and backported?).
+In 22.
+1 — behind flag, not default.

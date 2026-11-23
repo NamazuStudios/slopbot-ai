@@ -1,0 +1,24 @@
+I'll start by reading the module contract.
+The prompt is a forty-second siege of bunless sausages with white ketchup, and the tier lets them be as unhinged as they like.
+Read the contract, no triggers, no chat commands, just pure condiment chaos.
+Starting with the empty glass and the first lonely frankfurter.
+Thirty-two sausages arrived.
+Not one of them brought a bun.
+The whole screen is now a condiment incident, and SavorySailor has been formally notified.
+They have all frozen mid-dance and turned to stare.
+That is the punchline.
+Some jokes need forty seconds, and some need a single, gleaming white blob of ketchup.
+The ketchup is legally white, the hotdogs are legally bunless, and the streamer's face has been spared.
+You're welcome.
+**Built:** `slop.js` in the build directory.
+- **What it is:** Over roughly forty seconds, a lone frankfurter slides in, then thirty-one more arrive one at a time until the screen is fully occupied by bunless sausages wearing white ketchup squiggles and gravity-defying drips.
+- **Expressions:** Eight distinct faces — smug, worried, screaming, deadpan, winking, furious, unhinged grin, dizzy — plus sweat drops as things get strange.
+- **Choreography:** They dance in different directions, each with its own tempo, amplitude, and wobble.
+Drips grow as the crowd swells, and loose ketchup droplets rain down around the live shot, steering clear of SavorySailor's face.
+- **Punchline:** At the thirty-four second mark everything freezes, all eyes widen toward the camera, a caption names SavorySailor directly, then a giant white splat lands low on their own frame.
+They grin.
+Clean exit just under forty seconds via `ctx.done()`.
+- **Technique:** Transparent glass throughout, `clearRect` every frame, no opaque background.
+Sound is a sparse pulse of sine blips and shaped noise splats.
+No triggers, no chat hooks, no assets, tier `anything`, author `cooooter`.
+CHAT SUMMARY: Forty seconds of bunless sausages slowly conquering the screen and staring at you, which is exactly the kind of art Twitch deserves.

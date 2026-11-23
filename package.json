@@ -1,0 +1,23 @@
+{
+  "name": "slopbot-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SlopBot AI — the slop engine as a service: viewers prompt an AI agent from Twitch chat, the agent codes live canvas slops that play on stream.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "secrets:encrypt": "node lib/secrets.js encrypt",
+    "secrets:decrypt": "node lib/secrets.js decrypt",
+    "secrets:view": "node lib/secrets.js view"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^5.3.0",
+    "ws": "^8.23.0"
+  }
+}

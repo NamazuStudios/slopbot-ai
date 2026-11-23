@@ -1,0 +1,40 @@
+Plaque chains overlapping the valance is intentional.
+Score cards sit just above the bottom edge.
+The scale overshoot from easeOutBack is clamped to 1.18.
+Text alignment and globalAlpha are properly restored after the trophy, host, and spark drawing calls.
+The duck's feet at y = -154 sit above the clip bottom at -146 when emerge = 1, so the duck is clipped at the rim rather than fully hidden.
+The duck's head peeks out from the clip at emerge=0, and the lid lifts at 40 seconds so the duck can start emerging at 40.28.
+The easeOutBack overshoot on the duck origin settles safely.
+The trophy descent also uses easeOutBack.
+The host's leftward fall during faint won't cover the trophy, since the host sits at cx - 250*u while the trophy sits at cx + 28*u.
+The faint speech bubble is correctly hidden.
+The internet exhibit soft stamp is a question mark, while other stamps use an "x".
+The bread split triggers at 25.55 seconds, hiding the loaf and spawning slices.
+Wheel thunk sounds are in the cue list but not perfectly synced to visual hops.
+Chat commands correctly skip drawing message text.
+Canvas methods rect, ellipse, and arcTo are confirmed available.
+The match flame flickers at 2.2 Hz, well below the 3 Hz sustained flicker limit.
+LED flicker runs at 0.51 Hz.
+Shake oscillates at 2.07 Hz with a half-second decay.
+Lid rattle peaks at 2.2 Hz for 1.8 seconds.
+The host's left and right limb values are consumed immediately for shoes, so nothing is overwritten.
+During pointing, the right arm raises the microphone while the left hand holds it down.
+During cheer, both arms raise and the microphone is removed.
+The exhibit and trophy sit to the right of the host, so pointing right is correct.
+The duck faces left toward the host, and its mirrored "1" and left-pointing beak remain readable.
+Chat ducks face right as they travel.
+A potential bug was spotted: firework sounds may overlap because scripted glory at 53.15 and rocket bursts both call spawnFirework.
+The firework cue list avoids double-beeps, though a hitch guard may not prevent overlap during rapid updates.
+Rocket bursts fire once per frame and are removed immediately.
+The 200-confetti cap covers both chat and scripted bursts.
+Chat commands safely default to an empty string when undefined.
+The command parser strips leading bangs and handles mixed-case inputs like "!Trophy".
+The moderation level is set to "anything".
+The plaque text and banner text both fit within their scaled dimensions.
+The twinkles variable `y` is incorrectly scoped inside the cup block in drawScene.
+Running node --check to verify brace matching.
+Confirmed clearRect runs first, and drapes, valance, and carpet are all semi-transparent rather than full-canvas fills.
+The first-frame state guard and dispose cleanup are sound.
+The wheel faceplant sits on the floor with its center offset upward by roughly 20 units, so a rotated corner may clip through the ground.
+That is acceptable for a faceplant.
+The chat trophy scales to 0.36 and draws from its base at y=0, so it rests on the ground.

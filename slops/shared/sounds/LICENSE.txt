@@ -1,0 +1,3 @@
+Sounds from Mixkit (https://mixkit.co/free-sound-effects/) — Mixkit Stock Font Free License:
+free to use in personal, commercial and broadcast/stream projects. No attribution required.
+Add your own sounds to this folder as name.mp3 — slops use them via ctx.sound.sample("name").

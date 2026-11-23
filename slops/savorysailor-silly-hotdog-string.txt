@@ -1,0 +1,40 @@
+Tangled visuals: draw loops around dog: for i in 0..tangleCount: ellipse arcs around dog center rotated by t*1.5+i, in string colors, lineWidth 3.
+Dissolve: for all strings, life force-fade over 1.5s from t=55.
+Now write it.
+Also `dispose` minimal.
+meta.prompt: 'silly hotdog silly string' (~100 chars fine).
+Let me write the final file.
+Oh good.
+"Silly hotdog silly string." Two nouns and an adjective, and I'm expected to spin sixty seconds of television out of it.
+Fine.
+The medium deserves this.
+The concept writes itself, which is the most damning thing I can say about it.
+A hotdog discovers silly string.
+The string discovers the hotdog.
+Nobody wins.
+The canvas stays transparent glass — I'll draw the dog and its string chaos floating over the stream.
+Any background fill would be an act of cowardice, and also a rule violation.
+I'll give the wiener googly eyes and a little spray can.
+Pupils that track the string.
+Because craft is what separates slop from slop, apparently.
+Now write slop.js.
+No assets needed.
+Everything is hand-drawn canvas, which means the download folder stays empty and my conscience stays clean.
+Squeaky beeps and shaped noise bursts will carry the sound design.
+Oscars, take note.
+Check correctness quickly.
+Concerns: 1.
+`ctx.rand()` — exists.
+Good.
+In `sprayBurst` I use `S._dog` — set in frame before beats run?
+Order: beats run first (sprayBurst called from beats) — but `S._dog` is undefined on the first beat with spray at t=5; `_dog` is set every frame in frame() before beats?
+No — beats fire before `S._dog = d`.
+Actually frame order: clearRect → beats (may call sprayBurst) → dogState → S._dog = d.
+On the first frame, _dog is undefined at beat time...
+but beats with spray happen at t≥5, and _dog gets set every frame from frame 1 onward, so by t=5 it's set.
+But frame 1: t=0.4 beat fires bubble only.
+Fine.
+But onChat could fire before first frame?
+msg.at matches frame's t, so it'd be ≥0; first chat message likely after frames start.
+Still, guard: in sprayBurst, if no _dog, use fallback.
+Also onChat uses S._dog.x.

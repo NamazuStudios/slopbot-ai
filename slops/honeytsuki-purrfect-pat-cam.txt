@@ -1,0 +1,15 @@
+I'll read the module contract first.
+A cat is now the co-host.
+It appears in the camera frame, because the human is already there doing the heavy lifting.
+The cat requires exactly three pets, delivered one glowing pat at a time.
+Then it declares itself perfect and exits before anyone can disagree.
+The cat is placed, petted, and insufferably pleased with itself.
+It ends at fifteen seconds, which is exactly as long as the bit lasts.
+No extra cast was drawn, because the streamer is already doing the being-in-frame part.
+The overlay stays clear glass, so the live shot still reads behind the whiskers.
+**Purrfect Pat Cam** — a cat rises into the bottom of SavorySailor's live camera frame and demands exactly three pets.
+Each glowing pat lands with a squish, ripple, hearts, and a chirp; the third sends it into a purr loop (vibration arcs + low rumble), then a big PINK "PURRFECT." stamp, ray burst, and a heart fountain.
+Ends at 15s via `ctx.done()`.
+Fully transparent glass, no opaque fills, no streamer stand-in, no triggers (prompt gave no timing), no chat interactivity.
+Runs clean for left/right/centered camera rects and with `ctx.streamer = null`.
+CHAT SUMMARY: A cat has invaded the camera, demanded three pets, and stamped itself certified good — the streamer was merely present for legal reasons.

@@ -1,0 +1,10 @@
+Mayonnaise is a condiment, not a personality.
+Let me build the least dignified fountain in broadcasting history.
+The mayonnaise has been weaponized.
+A rumble builds under the live shot, then the webcam turns into a full condiment geyser.
+White sauce arcs upward, splatters across the frame, and drips down the edges of the picture.
+Big sauce-stained letters pop up around SavorySailor, one at a time, like a very unwell cereal mascot.
+It all lands on a caption naming the streamer and then cleans itself up.
+Roughly ten seconds, no padding, no survivors.
+Built: a ~10.5s transparent-overlay animation triggered by the !jism chat command, with a pressure rumble, eruption, fountain physics, accumulating splats and drips, staggered lettering around the streamer's camera rect (fallback centered if unset), and a closing caption; sounds via beep/noise only, no assets, no interactivity.
+CHAT SUMMARY: Mayonnaise now has a geyser rating and SavorySailor's webcam is officially a condiment dispenser.

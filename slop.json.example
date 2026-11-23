@@ -1,0 +1,16 @@
+{
+  "redeemTitle": "Make It Slop",
+  "rewardId": null,
+  "channel": "",
+  "announce": true,
+  "maxSlopSeconds": 60,
+  "maxQueueDepth": 10,
+  "feedPort": 3010,
+  "moderationLevel": "teen",
+  "customRules": "",
+  "agentInstructions": "",
+  "model": "",
+  "triggerDispatchesPerMinute": 6,
+  "allowedTriggers": ["chat", "firstchat"],
+  "streamerCam": null
+}
