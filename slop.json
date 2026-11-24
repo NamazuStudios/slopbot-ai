@@ -1,0 +1,10 @@
+{
+  "channel": "slopfixchannel",
+  "superusers": [
+    "slopfixadmin"
+  ],
+  "redeemTitle": "Regression Redeem",
+  "feedPort": 3010,
+  "maxSlopSeconds": 12,
+  "triggerDispatchesPerMinute": 30
+}

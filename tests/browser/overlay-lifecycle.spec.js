@@ -43,6 +43,10 @@ test('heartbeat watchdog ends orphaned plays — a dead overlay can never stall 
 });
 
 test('canvas resize re-runs init — the slop re-inits with the corrected ctx', async ({ page }) => {
+  // Raise the fuse for this test: the fixture self-ends only on a narrowing
+  // after a 20s stable wide boot (see the fixture's debounce), so the fuse
+  // must not expire mid-verification. Restored at the end.
+  await page.request.post('/api/slop/config', { data: { maxSlopSeconds: 120 } });
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto('/slop');
 
@@ -57,15 +61,16 @@ test('canvas resize re-runs init — the slop re-inits with the corrected ctx', 
     const boot = document.getElementById('stage')?._slopMount?.bootInfo;
     return Boolean(boot && boot.w >= 1000);
   }, undefined, { timeout: 20_000 });
-  await new Promise((r) => setTimeout(r, 2500));
-  // Control: booted wide, layout settled, no resize yet — the play must
-  // still be up. Polled (not instant): the server snapshot can lag the
-  // iframe's boot by a poll cycle on slow runners.
-  await expect.poll(currentPlay, { timeout: 10_000, intervals: [250] }).toBeTruthy();
+  // Settle past the fixture's 20s wide-boot debounce — after this, ANY
+  // narrowing is a real resize, and none can have fired during the settle
+  // (the debounce forbids it). Control: the play must still be up; polled,
+  // since the server snapshot can lag the iframe's boot on slow runners.
+  await page.waitForTimeout(21_000);
+  await expect.poll(currentPlay, { timeout: 15_000, intervals: [250] }).toBeTruthy();
 
   // Resize → the sandbox re-fits and RE-RUNS init with the corrected ctx →
-  // the slop's own init logic (ctx.done()) ends the play. The resize path
-  // reacts in about a frame — far ahead of the 2.5s self-heal poll.
+  // the slop's own init logic (ctx.done()) ends the play.
   await page.setViewportSize({ width: 800, height: 600 });
   await waitForStageEmpty(2500);
+  await page.request.post('/api/slop/config', { data: { maxSlopSeconds: 12 } });
 });

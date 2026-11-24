@@ -9,19 +9,18 @@ export const meta = {
 };
 
 // A fresh iframe can boot before the parent's CSS sizes it (the boot race
-// the sandbox's self-heal exists for) — so only a narrowing AFTER a stable
-// wide boot counts as a resize. "Stable" is debounced: the wide state must
-// have held for ~750ms before a narrowing is treated as a real resize —
-// otherwise the boot-race reflow (a transient narrow measurement right
-// after the CSS applies, seen on slow CI runners) ends the play before the
-// test's control check. The pinned behavior is unchanged: a REAL resize
-// re-runs init and the slop's own init logic ends the play.
+// the sandbox's self-heal exists for) — so only a narrowing AFTER a long
+// stable wide boot counts as a resize. The 20s debounce makes the end
+// condition deterministic: layout settling (even on slow CI runners) and
+// the boot-race reflow can never end the play; only a REAL resize after
+// the test's settle window does. (The sandbox has no timers, so the
+// debounce is measured between init runs via Date.now().)
 let seenWideAt = 0;
 
 export function init(ctx) {
   if (ctx.width >= 1000) {
     if (!seenWideAt) seenWideAt = Date.now();
-  } else if (seenWideAt && Date.now() - seenWideAt > 750) {
+  } else if (seenWideAt && Date.now() - seenWideAt > 20_000) {
     ctx.done();
   }
 }
