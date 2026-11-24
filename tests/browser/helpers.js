@@ -7,6 +7,25 @@
 
 const BASE_URL = (process.env.BASE_URL || 'http://127.0.0.1:3000').replace(/\/+$/, '');
 
+// The fixture control API (scripts/fixtures/server.js) mints signed test
+// sessions — the same HMAC cookie lib/auth.js verifies. Manage-gated routes
+// need one (dev mode lets any LOGIN manage; anonymous is still 401).
+const CONTROL_PORT = process.env.FIXTURE_CONTROL_PORT || 3999;
+const controlUrl = (path) => `http://127.0.0.1:${CONTROL_PORT}${path}`;
+const mintTestSession = async (role = 'superuser') => {
+  const res = await fetch(controlUrl('/session'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ login: 'slopfix-tester', role }),
+  });
+  if (!res.ok) throw new Error(`test session mint failed: ${res.status}`);
+  return res.json(); // { ok, token, cookieName }
+};
+// Install the minted session into a Playwright context's cookie jar.
+const installSession = async (context, session) => {
+  await context.addCookies([{ name: session.cookieName, value: session.token, url: BASE_URL }]);
+};
+
 const startPlay = async (name, via = 'deck') => {
   const res = await fetch(`${BASE_URL}/api/slop/play/${encodeURIComponent(name)}`, {
     method: 'POST',
@@ -69,4 +88,4 @@ const resetStage = async () => {
   throw new Error('the stage did not drain');
 };
 
-module.exports = { BASE_URL, startPlay, endPlay, snapshot, currentPlay, waitForStageEmpty, sleep, resetStage };
+module.exports = { BASE_URL, startPlay, endPlay, snapshot, currentPlay, waitForStageEmpty, sleep, resetStage, mintTestSession, installSession };

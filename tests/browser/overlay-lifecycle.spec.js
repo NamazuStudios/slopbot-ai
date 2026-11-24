@@ -5,7 +5,7 @@
 // overlay stops pinging, and a canvas resize re-runs the slop's init.
 
 const { test, expect } = require('@playwright/test');
-const { startPlay, currentPlay, waitForStageEmpty, resetStage } = require('./helpers');
+const { startPlay, currentPlay, waitForStageEmpty, resetStage, mintTestSession, installSession } = require('./helpers');
 
 test.beforeEach(resetStage);
 test.afterEach(resetStage);
@@ -45,8 +45,13 @@ test('heartbeat watchdog ends orphaned plays — a dead overlay can never stall 
 test('canvas resize re-runs init — the slop re-inits with the corrected ctx', async ({ page }) => {
   // Raise the fuse for this test: the fixture self-ends only on a narrowing
   // after a 20s stable wide boot (see the fixture's debounce), so the fuse
-  // must not expire mid-verification. Restored at the end.
-  await page.request.post('/api/slop/config', { data: { maxSlopSeconds: 120 } });
+  // must not expire mid-verification. Restored at the end. The config route
+  // is manage-gated — the test mints a session from the fixture control API
+  // (anonymous is 401 even in dev mode).
+  const session = await mintTestSession('superuser');
+  await installSession(page.context(), session);
+  const cfgRes = await page.request.post('/api/slop/config', { data: { maxSlopSeconds: 120 } });
+  if (cfgRes.status() !== 200) throw new Error(`config POST failed: ${cfgRes.status()}`);
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto('/slop');
 
