@@ -138,9 +138,11 @@ public class SlopAsset {
 
 ## Reference implementation behavior (`lib/store.js`)
 
-- **MongoDB is required — no file mode.** Set `MONGO_URL` (env) or
-  `slop.json` → `"mongo": {"url", "database"}` (default db `slopbot`). A
-  failed connect refuses startup, exactly like missing credentials.
+- **MongoDB is required — no file mode.** The connection comes from the
+  `MONGO_URL` env var (database defaults to `slopbot`). A failed connect
+  refuses startup, exactly like missing credentials. In the Elements
+  deployment this disappears entirely: the Datastore is injected by the
+  platform and no connection string exists anywhere in product config.
 - **Idempotent import at boot** (file → DB): file slops missing from the
   store get records (tagged `legacy`), plus per-slop assets and the shared
   sound pool — the one-time migration of the original library. From then on

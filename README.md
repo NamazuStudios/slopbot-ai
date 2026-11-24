@@ -25,9 +25,8 @@ npm install
 npm start
 ```
 
-Requires a reachable MongoDB (`MONGO_URL`, or `slop.json` →
-`"mongo": {"url", "database"}`) — the slop store is the source of truth, and
-startup fails fast without it.
+Requires a reachable MongoDB (`MONGO_URL` env var) — the slop store is the
+source of truth, and startup fails fast without it.
 
 Then:
 
