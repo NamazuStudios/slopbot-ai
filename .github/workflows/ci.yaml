@@ -1,0 +1,132 @@
+# The repo's first workflow — the carried-forward behavior regression suite
+# (docs/regression/SPEC.md). The suite is the calibration oracle for the
+# Kotlin element port (NamazuStudios/slopbot-ai-element): "port complete"
+# means this suite passes against the ELM.
+#
+# Tier layout:
+#   http      — the transport-only checks (scripts/regression.js) against the
+#               fixture boot, with a mongo:7 service container for the store
+#               (MongoDB is REQUIRED — lib/store.js has no file fallback).
+#   browser   — the Playwright tier: the /slop overlay's client-side
+#               behaviors in headless Chromium (also against the fixture
+#               boot, also needing Mongo).
+#   parity    — the same suite pointed at the deployed Kotlin element via
+#               BASE_URL + TOKEN. Dormant (if: false) until that element
+#               deploys — the contract stays visible here.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  MONGO_DATABASE: slopbot_regression
+  # Deterministic trigger dispatch budget for the fixture boot — the
+  # flood-cap check asserts the throttled-notice path, and 30/min keeps the
+  # rest of the dispatch-driven checks clear of the cap.
+  SLOP_FLOOD_OVERRIDE: '30'
+  BASE_URL: http://127.0.0.1:3000
+
+jobs:
+  http:
+    name: regression (http tier)
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      MONGO_URL: mongodb://127.0.0.1:27017
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Boot the fixture server
+        run: |
+          node scripts/fixtures/server.js > fixture-server.log 2>&1 &
+          echo $! > fixture-server.pid
+          for i in $(seq 1 120); do
+            if curl -fsS "$BASE_URL/api/slop" > /dev/null 2>&1; then
+              echo "fixture ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "fixture server did not become healthy"
+          cat fixture-server.log
+          exit 1
+      - name: Run the HTTP tier
+        run: npm run test:http
+      - name: Fixture server log
+        if: failure()
+        run: tail -n 200 fixture-server.log
+
+  browser:
+    name: regression (browser tier)
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      MONGO_URL: mongodb://127.0.0.1:27017
+      FEED_PORT: '3010'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # The fixture boot itself is started by playwright.config.js's
+      # webServer (reuseExistingServer) — it inherits MONGO_URL from here.
+      - name: Run the browser tier
+        run: npm run test:browser
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+  element-parity:
+    # The SAME suite, pointed at the deployed Kotlin element
+    # (NamazuStudios/slopbot-ai-element) via BASE_URL + TOKEN — that is the
+    # port's parity harness and its "port complete" gate. Dormant until the
+    # element deploys; wire the two secrets and drop the `if` to light it up.
+    if: false
+    name: element parity (dormant until the Kotlin element deploys)
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ vars.ELEMENT_BASE_URL || 'https://elements.example.invalid' }}
+      TOKEN: ${{ secrets.ELEMENT_SESSION_TOKEN || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # No fixture control on a remote target: fixture-dependent checks skip
+      # cleanly and the transport-only checks assert parity.
+      - run: npm run test:http

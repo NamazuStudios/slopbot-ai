@@ -51,6 +51,26 @@ security, and the Morphia data model. `docs/tickets/` carries the executable
 ticket series (mirrored as GitHub issues) to get from this single-tenant
 reference implementation to the deployed multi-tenant product.
 
+## Regression suite
+
+`docs/regression/SPEC.md` is the binding contract for the carried-forward
+behavior regression suite: transport-only checks that pin the monolith's
+hard-won behaviors (trigger modes, cooldowns, allow-lists, flood cap,
+`!name` resolution, streamer cam, BOM tolerance, IRC keepalive, agent-rule
+registration) so the Kotlin element port (`slopbot-ai-element`) cannot
+regress any of them. Two tiers:
+
+- **HTTP tier** — `npm run test:http` (runner: `scripts/regression.js`,
+  fixture boot: `scripts/fixtures/server.js`, checked-in fixture slops:
+  `tests/fixtures/slops/`). Needs `MONGO_URL` (the store is required).
+- **Browser tier** — `npm run test:browser` (Playwright, headless Chromium
+  against `/slop`; the fixture boot is started automatically when nothing
+  answers at `BASE_URL`). Needs its system deps
+  (`npx playwright install --with-deps chromium`).
+
+`docs/regression/RESULTS.md` records the current results. CI runs both
+tiers (`.github/workflows/ci.yaml`) plus the dormant element-parity job.
+
 ## License
 
 UNLICENSED — private project.

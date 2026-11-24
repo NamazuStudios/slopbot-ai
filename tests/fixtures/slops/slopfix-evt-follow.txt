@@ -1,0 +1,1 @@
+Regression fixture — plain follow trigger (presence of the event is the match).

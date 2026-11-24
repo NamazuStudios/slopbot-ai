@@ -1,0 +1,1 @@
+Regression fixture — beeps on init; the browser suite asserts the host audio engine hears it.

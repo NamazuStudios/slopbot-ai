@@ -1,0 +1,1 @@
+Regression fixture — one trigger per event type with its criteria (saved via the API by the runner).

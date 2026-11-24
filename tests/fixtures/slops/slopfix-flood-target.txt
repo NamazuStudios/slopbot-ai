@@ -1,0 +1,1 @@
+Regression fixture — the flood-cap check’s dispatch target (no cooldown of its own).

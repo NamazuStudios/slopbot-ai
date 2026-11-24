@@ -3,3 +3,12 @@ config/
 .slop-builds/
 *.log
 .DS_Store
+
+# Regression fixture runtime copies (booted from tests/fixtures/slops/ by
+# scripts/fixtures/server.js — the server only ever reads slops/)
+slops/slopfix-*
+slops/assets/slopfix-*
+.slop-regression-backup/
+.regression-results.txt
+test-results/
+playwright-report/

@@ -1,0 +1,1 @@
+Regression fixture — token-subset sibling of slopfix-cd-window.js for exact-handle resolution.

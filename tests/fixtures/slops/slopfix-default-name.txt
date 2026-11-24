@@ -1,0 +1,1 @@
+Regression fixture — no proposals, no saved list: the server-owned default !name activation command.

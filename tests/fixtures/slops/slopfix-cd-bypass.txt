@@ -1,0 +1,1 @@
+Regression fixture — bypassCooldown trigger plays through an armed window.

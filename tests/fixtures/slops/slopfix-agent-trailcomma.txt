@@ -1,0 +1,1 @@
+Regression fixture — meta.triggers JSON with a trailing comma; the parser tolerates exactly that.
