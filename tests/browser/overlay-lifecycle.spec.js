@@ -57,9 +57,11 @@ test('canvas resize re-runs init — the slop re-inits with the corrected ctx', 
     const boot = document.getElementById('stage')?._slopMount?.bootInfo;
     return Boolean(boot && boot.w >= 1000);
   }, undefined, { timeout: 20_000 });
-  await new Promise((r) => setTimeout(r, 1500));
-  // Control: booted wide, no resize yet — the play must still be up.
-  expect(await currentPlay()).toBeTruthy();
+  await new Promise((r) => setTimeout(r, 2500));
+  // Control: booted wide, layout settled, no resize yet — the play must
+  // still be up. Polled (not instant): the server snapshot can lag the
+  // iframe's boot by a poll cycle on slow runners.
+  await expect.poll(currentPlay, { timeout: 10_000, intervals: [250] }).toBeTruthy();
 
   // Resize → the sandbox re-fits and RE-RUNS init with the corrected ctx →
   // the slop's own init logic (ctx.done()) ends the play. The resize path
