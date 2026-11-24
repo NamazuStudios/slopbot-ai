@@ -25,6 +25,10 @@ npm install
 npm start
 ```
 
+Requires a reachable MongoDB (`MONGO_URL`, or `slop.json` →
+`"mongo": {"url", "database"}`) — the slop store is the source of truth, and
+startup fails fast without it.
+
 Then:
 
 1. Open `/auth/login` and log in with Twitch (registers your session; the

@@ -138,15 +138,17 @@ public class SlopAsset {
 
 ## Reference implementation behavior (`lib/store.js`)
 
-- **Fully optional.** No `mongo.url` (env `MONGO_URL` or `slop.json`
-  `"mongo": {"url", "database"}`) or driver → store inactive; the file layer
-  serves everything exactly as before. `/api/slop` exposes `store.status()`.
-- **Idempotent import at boot** (file → DB): every file slop missing from the
-  store gets a record (tagged `legacy`), plus its per-slop assets and the
-  shared sound pool.
-- **DB-authoritative registry:** once connected, the registry loads from the
-  store; sources are served from the store at bundle time (file fallback).
+- **MongoDB is required — no file mode.** Set `MONGO_URL` (env) or
+  `slop.json` → `"mongo": {"url", "database"}` (default db `slopbot`). A
+  failed connect refuses startup, exactly like missing credentials.
+- **Idempotent import at boot** (file → DB): file slops missing from the
+  store get records (tagged `legacy`), plus per-slop assets and the shared
+  sound pool — the one-time migration of the original library. From then on
+  the store is the only source of truth; files are just the agent's handoff.
+- **Registry loads from the store**; sources are served from it at bundle
+  time (in-memory cache, refreshed on every registration).
 - **Write-through:** register (new build/modify), triggers save, suspend,
-  cooldown changes, approve/reject/delete, play statistics.
+  cooldown changes, approve/reject/delete, play statistics (`$inc`).
+- `/api/slop` exposes `store.status()` for visibility.
 - Run `node scripts/store-roundtrip.js` against any Mongo to verify the
   round-trip (import → load → source equality → write-through → delete).

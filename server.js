@@ -312,10 +312,8 @@ app.post('/api/rewards/test', manage, (req, res) => {
 });
 
 // Channel point slop machine — queue/review/agent/plays (see docs/DESIGN.md).
-slop.init({
-  helixUpdate: eventsub.updateRedemptionStatus,
-  sendChat: eventsub.sendChatMessage,
-});
+// Initialization happens once, awaited in the startup chain below (the store
+// must be attached before the server accepts traffic).
 
 app.get('/api/slop', (req, res) => {
   res.json(slop.status());
@@ -467,10 +465,15 @@ app.use((req, res) => {
 // Credentials first: reads config/twitch.json or prompts to decrypt
 // config/twitch.json.aes — before anything listens, so a wrong passphrase
 // fails fast in the terminal instead of starting a server that can't connect.
+// The slop store (MongoDB) is likewise required — no store, no server.
 secrets
   .ensureLoaded()
-  .then(() => {
+  .then(async () => {
     eventsub.init({ onRedemption: onTwitchRedemption, onEvent: onTwitchEvent });
+    await slop.init({
+      helixUpdate: eventsub.updateRedemptionStatus,
+      sendChat: eventsub.sendChatMessage,
+    });
     app.listen(PORT, HOST, () => {
       console.log(`slopbot-ai is running:`);
       console.log(`  landing: http://localhost:${PORT}/`);
