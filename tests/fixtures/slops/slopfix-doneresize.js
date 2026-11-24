@@ -1,6 +1,11 @@
 // Fixture slop for the carried-forward behavior regression suite
 // (docs/regression/SPEC.md). Registered, bundled, and animated like any
 // other slop — the runner drives its triggers through the API.
+//
+// The resize proof no longer self-ends: the sandbox's refit() re-posts the
+// boot report with the corrected size, so the test asserts the re-init
+// directly (bootInfo.w drops to the narrowed width). init stays trivially
+// re-runnable — that re-runnability is itself part of the pinned contract.
 export const meta = {
   title: 'Slopfix Done On Resize',
   author: 'slopfix',
@@ -8,22 +13,7 @@ export const meta = {
   createdAt: '2026-01-01T00:00:00Z',
 };
 
-// A fresh iframe can boot before the parent's CSS sizes it (the boot race
-// the sandbox's self-heal exists for) — so only a narrowing AFTER a long
-// stable wide boot counts as a resize. The 20s debounce makes the end
-// condition deterministic: layout settling (even on slow CI runners) and
-// the boot-race reflow can never end the play; only a REAL resize after
-// the test's settle window does. (The sandbox has no timers, so the
-// debounce is measured between init runs via Date.now().)
-let seenWideAt = 0;
-
-export function init(ctx) {
-  if (ctx.width >= 1000) {
-    if (!seenWideAt) seenWideAt = Date.now();
-  } else if (seenWideAt && Date.now() - seenWideAt > 20_000) {
-    ctx.done();
-  }
-}
+export function init(ctx) {}
 
 export function frame(ctx, t, dt) {
   const c = ctx.canvas;

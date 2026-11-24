@@ -180,6 +180,9 @@ const refit = () => {
   ctx.width = canvas.width;
   ctx.height = canvas.height;
   try { slop.init?.(ctx); } catch (err) { console.error('slop re-init failed', err); }
+  // Re-post the boot report: the debug chip (and tests) should show the
+  // CURRENT truth after a re-init, not the original boot's.
+  try { parent.postMessage({ type: 'slop-boot', w: ctx.width, h: ctx.height, streamer: ctx.streamer }, '*'); } catch {}
 };
 addEventListener('resize', refit);
 // Tell the host what this sandbox actually booted with — the ?debug=1 chip

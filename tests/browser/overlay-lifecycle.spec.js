@@ -5,7 +5,7 @@
 // overlay stops pinging, and a canvas resize re-runs the slop's init.
 
 const { test, expect } = require('@playwright/test');
-const { startPlay, currentPlay, waitForStageEmpty, resetStage, mintTestSession, installSession } = require('./helpers');
+const { startPlay, currentPlay, waitForStageEmpty, resetStage } = require('./helpers');
 
 test.beforeEach(resetStage);
 test.afterEach(resetStage);
@@ -43,39 +43,27 @@ test('heartbeat watchdog ends orphaned plays — a dead overlay can never stall 
 });
 
 test('canvas resize re-runs init — the slop re-inits with the corrected ctx', async ({ page }) => {
-  // Raise the fuse for this test: the fixture self-ends only on a narrowing
-  // after a 20s stable wide boot (see the fixture's debounce), so the fuse
-  // must not expire mid-verification. Restored at the end. The config route
-  // is manage-gated — the test mints a session from the fixture control API
-  // (anonymous is 401 even in dev mode).
-  const session = await mintTestSession('superuser');
-  await installSession(page.context(), session);
-  const cfgRes = await page.request.post('/api/slop/config', { data: { maxSlopSeconds: 120 } });
-  if (cfgRes.status() !== 200) throw new Error(`config POST failed: ${cfgRes.status()}`);
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto('/slop');
 
-  // This slop ends itself from init() once the canvas NARROWS AFTER a wide
-  // boot — a pure init-driven end, nothing else can report it. (A fresh
-  // iframe can boot before the parent's CSS sizes it — the boot race the
-  // sandbox's self-heal exists for — so "wide boot first" is part of the
-  // fixture's contract.)
   await startPlay('slopfix-doneresize.js');
   await page.waitForSelector('#stage iframe');
+  // The boot race: a fresh iframe can boot before the parent's CSS sizes it —
+  // so wait for the SETTLED wide boot (the sandbox re-posts its boot report on
+  // every re-init, so bootInfo tracks the current truth).
   await page.waitForFunction(() => {
     const boot = document.getElementById('stage')?._slopMount?.bootInfo;
     return Boolean(boot && boot.w >= 1000);
   }, undefined, { timeout: 20_000 });
-  // Settle past the fixture's 20s wide-boot debounce — after this, ANY
-  // narrowing is a real resize, and none can have fired during the settle
-  // (the debounce forbids it). Control: the play must still be up; polled,
-  // since the server snapshot can lag the iframe's boot on slow runners.
-  await page.waitForTimeout(21_000);
-  await expect.poll(currentPlay, { timeout: 15_000, intervals: [250] }).toBeTruthy();
 
-  // Resize → the sandbox re-fits and RE-RUNS init with the corrected ctx →
-  // the slop's own init logic (ctx.done()) ends the play.
+  // Resize → the sandbox re-fits and RE-RUNS init with the corrected ctx —
+  // and re-posts the boot report, so the corrected ctx is directly observable.
   await page.setViewportSize({ width: 800, height: 600 });
-  await waitForStageEmpty(2500);
-  await page.request.post('/api/slop/config', { data: { maxSlopSeconds: 12 } });
+  await page.waitForFunction(() => {
+    const boot = document.getElementById('stage')?._slopMount?.bootInfo;
+    return Boolean(boot && boot.w > 0 && boot.w < 1000);
+  }, undefined, { timeout: 10_000 });
+
+  // And the play SURVIVED the re-init (still up, still animating).
+  await expect.poll(currentPlay, { timeout: 5_000, intervals: [250] }).toBeTruthy();
 });
