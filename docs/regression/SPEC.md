@@ -14,7 +14,7 @@ Pin the monolith's hard-won behavior as executable checks so the Kotlin element 
 
 ## The pinned behaviors (each = one check)
 
-1. **Triggers** — chat criteria (exact/contains/starts/ends/word/wildcard/regex modes, case sensitivity), event types (follow/sub/resub/subgift/raid/cheer/redemption/firstchat/firstfollower), registry allow-list gating creator-proposed triggers only, flood cap (visible throttled overlay note on drops), immediate vs queued dispatch, `bypassCooldown`.
+1. **Triggers** — chat criteria (exact/contains/starts/ends/word/wildcard/regex modes, case sensitivity), event types (follow/sub/resub/subgift/raid/cheer/redemption/firstchat/firstfollower), registry allow-list gating creator-proposed triggers only, flood cap (visible throttled overlay note on drops), immediate vs queued dispatch, `bypassCooldown`; and the `http` type — a secret per-slop key posted as the whole `text/plain` body of `POST /trigger` that identifies and plays the slop (no session; the key is the credential, never exposed on open surfaces; rotation kills the old key; a creator proposal of type `http` is rejected, not held).
 2. **Cooldowns** — per-slop, seconds, arm on trigger plays only, manual plays unaffected, streamer-resettable.
 3. **IRC keepalive** — client pings every 15s; force-reconnect when pongs stop; a silently-dead socket can never leave the listener deaf; liveness visible in `/api/slop` (`irc.connected`, `lastTrafficAgoMs`).
 4. **`!name` is server-owned** — the agent never proposes `!`-patterns; keyword triggers spelled exactly as the viewer wrote them.

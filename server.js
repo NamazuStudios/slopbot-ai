@@ -337,11 +337,14 @@ app.post('/api/slop/suspend/:name', manage, (req, res) => {
 
 // Per-slop trigger settings: GET reads, POST saves (validated server-side),
 // POST …/test runs the server-side chat matcher for the settings screen.
+// The GET (and only the GET — these routes are manage-gated) also returns
+// the slop's http trigger key: the deck's trigger pane is where the streamer
+// reads, copies, and rotates it.
 app.get('/api/slop/triggers/:name', manage, (req, res) => {
   const name = decodeURIComponent(req.params.name);
   const entry = slop.status().registered.find((e) => e.name === name);
   if (!entry) return res.status(404).json({ ok: false, error: 'no such slop' });
-  res.json({ ok: true, triggers: entry.triggers ?? [] });
+  res.json({ ok: true, triggers: entry.triggers ?? [], triggerKey: slop.triggerKeyOf(name) });
 });
 app.post('/api/slop/triggers/:name', manage, (req, res) => {
   const name = decodeURIComponent(req.params.name);
@@ -350,6 +353,31 @@ app.post('/api/slop/triggers/:name', manage, (req, res) => {
 });
 app.post('/api/slop/triggers/:name/test', manage, (req, res) => {
   res.json(slop.testTriggers(decodeURIComponent(req.params.name), String(req.body?.text ?? '')));
+});
+app.post('/api/slop/triggers/:name/rotate-key', manage, (req, res) => {
+  const name = decodeURIComponent(req.params.name);
+  const result = slop.rotateTriggerKey(name);
+  res.status(result.ok ? 200 : 404).json(result);
+});
+
+// The http trigger: a single secret token, unique per slop, that both
+// identifies and plays it. The request body IS the key — Content-Type
+// text/plain, nothing else — and the key is the entire credential: no
+// session, no other field. 200 played, 404 unknown key, 409 refused
+// (suspended / pending / cooldown / trigger off), 429 flood-capped — so an
+// integration can tell a wrong key from a cooled-down slop.
+app.post('/trigger', express.text({ type: 'text/plain', limit: '1kb' }), (req, res) => {
+  if (!req.is('text/plain')) {
+    return res.status(415).json({ ok: false, reason: 'content-type', error: 'Content-Type must be text/plain — the body is the slop trigger key' });
+  }
+  const key = typeof req.body === 'string' ? req.body.trim() : '';
+  if (!key) {
+    return res.status(400).json({ ok: false, reason: 'empty', error: 'the request body must be the slop trigger key (text/plain)' });
+  }
+  const result = slop.playByTriggerKey(key);
+  const headers = {};
+  if (result.cooldownUntil) headers['Retry-After'] = Math.max(1, Math.ceil((result.cooldownUntil - Date.now()) / 1000));
+  res.status(result.status).set(headers).json(result);
 });
 
 // The streamer's per-slop cooldown reset — the registry chip's clear button.
