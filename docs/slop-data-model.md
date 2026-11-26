@@ -33,6 +33,7 @@ First-class database objects, defined per the Namazu Elements manual
 | `moderation` | enum | `pending` / `approved` / `rejected` / `suspended` |
 | `suspended` | bool | deck quick-suspend |
 | `triggers` | array | the streamer's saved trigger list (Elements-shaped trigger docs) |
+| `triggerKey` | string \| null | the `http` trigger's **secret** per-slop key (24 random bytes, base64url) — `POST /trigger` with the key as the whole `text/plain` body plays this slop. Written through on trigger save and rotation; retired when the last `http` trigger goes. Never exposed on open surfaces (snapshot, SSE registry, bundle) — only the manage-gated trigger routes return it |
 | `cooldownSeconds`, `slopCommand` | int, bool | carried from #5 / the `!name` default |
 | `playCount`, `lastPlayedAt` | int, long | statistics |
 | `metadata` | object | `{short, author, summary, controls, moderationLevel}` |
@@ -68,6 +69,8 @@ public class Slop {
 
     @Embedded
     private List<Trigger> triggers;
+
+    private String triggerKey;        // http trigger's secret key (never on open surfaces)
 
     private Integer cooldownSeconds;
 

@@ -1170,7 +1170,7 @@ const sptDefault = (type) => {
   if (type === 'sub') return { ...base, tier: 0 };
   if (type === 'resub') return { ...base, minMonths: 0 };
   if (type === 'redemption') return { ...base, rewardId: null };
-  return base; // follow, firstfollow — no extra criteria
+  return base; // follow, firstfollow, http — no extra criteria (the http key is minted by the server at save)
 };
 
 function sptField(label, input) {
@@ -1179,6 +1179,83 @@ function sptField(label, input) {
   const k = document.createElement('span');
   k.textContent = label;
   wrap.append(k, input);
+  return wrap;
+}
+
+// --- the http trigger's secret key ---------------------------------------------
+// One secret per slop, minted by the server when the trigger is saved. The
+// deck is the streamer's only window onto it: read (manage-gated route),
+// copy, rotate. It never rides the registry broadcast, so the pane fetches
+// it separately when it opens.
+let sptKey = null; // the current slop's key — set on pane open, save, and rotate
+
+async function sptLoadKey() {
+  if (!sptEntry) return;
+  const forEntry = sptEntry;
+  try {
+    const res = await fetch('/api/slop/triggers/' + encodeURIComponent(forEntry.name));
+    const data = await res.json().catch(() => null);
+    if (data?.ok && sptEntry === forEntry) {
+      sptKey = data.triggerKey ?? null;
+      if (sptList.some((t) => t.type === 'http')) {
+        document.getElementById('spt-list').replaceChildren(...sptList.map(sptRow));
+        sptPaintEmpty();
+      }
+    }
+  } catch { /* the rows keep the placeholder until it lands */ }
+}
+
+function sptKeyControls() {
+  const wrap = document.createElement('span');
+  wrap.className = 'spt-key';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.readOnly = true;
+  input.className = 'spt-keyval';
+  input.value = sptKey ?? '';
+  input.placeholder = 'mints on save';
+  input.title = 'The secret key: POST /trigger with this as the whole text/plain body plays this slop — no session, no name. Treat it like a password';
+
+  const copy = document.createElement('button');
+  copy.type = 'button';
+  copy.className = 'spt-keybtn';
+  copy.textContent = '⧉';
+  copy.title = 'Copy the key';
+  copy.addEventListener('click', async () => {
+    if (!sptKey) return;
+    try {
+      await navigator.clipboard.writeText(sptKey);
+      copy.textContent = '✓';
+    } catch { copy.textContent = '✕'; }
+    setTimeout(() => { copy.textContent = '⧉'; }, 1500);
+  });
+
+  const rotate = document.createElement('button');
+  rotate.type = 'button';
+  rotate.className = 'spt-keybtn';
+  rotate.textContent = '↻';
+  rotate.title = 'Rotate — a fresh secret; the old key stops working immediately';
+  rotate.addEventListener('click', async () => {
+    if (!sptEntry) return;
+    try {
+      const res = await fetch('/api/slop/triggers/' + encodeURIComponent(sptEntry.name) + '/rotate-key', { method: 'POST' });
+      const data = await res.json().catch(() => null);
+      if (data?.ok) {
+        sptKey = data.triggerKey;
+        document.getElementById('spt-list').replaceChildren(...sptList.map(sptRow));
+        sptPaintEmpty();
+      } else {
+        rotate.textContent = '✕';
+        setTimeout(() => { rotate.textContent = '↻'; }, 1500);
+      }
+    } catch {
+      rotate.textContent = '✕';
+      setTimeout(() => { rotate.textContent = '↻'; }, 1500);
+    }
+  });
+
+  wrap.append(input, copy, rotate);
   return wrap;
 }
 
@@ -1301,6 +1378,8 @@ function sptRow(trigger) {
     rewardId.placeholder = 'reward ID — blank = any reward';
     rewardId.addEventListener('input', () => { trigger.rewardId = rewardId.value.trim() || null; sptDirty = true; });
     criteria.append(sptField('reward', rewardId));
+  } else if (trigger.type === 'http') {
+    criteria.append(sptKeyControls());
   }
 
   // Dispatch behavior (streamer-only): queue like !slop, or interrupt —
@@ -1371,12 +1450,14 @@ function sptPaintEmpty() {
 
 function renderTriggersPane(entry) {
   sptEntry = entry;
+  sptKey = null; // per-slop secret — never carries over to the next slop's pane
   sptList = (entry.triggers ?? []).map((t) => ({ ...t, patterns: [...(t.patterns ?? [])] }));
   sptDirty = false;
   sptMatchedFlash = new Set();
   const list = document.getElementById('spt-list');
   list.replaceChildren(...sptList.map(sptRow));
   sptPaintEmpty();
+  if (sptList.some((t) => t.type === 'http')) sptLoadKey();
   // The !slop trigger — an explicit boolean row, on by default for everything.
   const slopCommandBox = document.getElementById('spt-slopcommand');
   slopCommandBox.checked = entry.slopCommand !== false;
@@ -1395,6 +1476,7 @@ document.getElementById('spt-add-type').addEventListener('change', (event) => {
   const list = document.getElementById('spt-list');
   list.replaceChildren(...sptList.map(sptRow));
   sptPaintEmpty();
+  if (type === 'http' && !sptKey) sptLoadKey(); // an unsaved row still shows a key the slop may already have
   event.currentTarget.value = '';
   event.currentTarget.focus();
 });
@@ -1510,6 +1592,7 @@ document.getElementById('spt-save').addEventListener('click', async () => {
     }
     sptList = data.triggers;
     sptEntry.triggers = data.triggers;
+    if (data.triggerKey !== undefined) sptKey = data.triggerKey; // minted/retired with this save
     if (data.cooldownSeconds !== undefined) sptEntry.cooldownSeconds = data.cooldownSeconds;
     if (data.slopCommand !== undefined) sptEntry.slopCommand = data.slopCommand;
     document.getElementById('spt-slopcommand').checked = data.slopCommand !== false;
@@ -2013,6 +2096,7 @@ const TRIGGER_TYPE_LABELS = {
   raid: 'raid',
   cheer: 'cheer',
   redemption: 'channel points redeem',
+  http: 'http trigger key',
 };
 const TRIGGER_TYPE_NOTES = {
   chat: 'any chat line matching string criteria',
@@ -2025,6 +2109,7 @@ const TRIGGER_TYPE_NOTES = {
   raid: 'incoming raid — optional viewer floor',
   cheer: 'bits cheer — optional amount floor',
   redemption: 'any or one specific reward',
+  http: 'a secret per-slop key: POST /trigger (text/plain, body = key) plays this slop',
 };
 const DEFAULT_ALLOWED_TRIGGERS = ['chat', 'firstchat'];
 
@@ -2067,7 +2152,9 @@ function paintAllowedTriggers() {
     empty.textContent = 'no trigger types allowed — only triggers you set on a slop yourself can fire';
     allowedTriggersBox.append(empty);
   }
-  const disabled = Object.keys(TRIGGER_TYPE_LABELS).filter((type) => !allowedList.includes(type));
+  // The allow-list gates CREATOR proposals; the http type is streamer-only
+  // (a server-minted secret key), so it never appears here.
+  const disabled = Object.keys(TRIGGER_TYPE_LABELS).filter((type) => type !== 'http' && !allowedList.includes(type));
   if (disabled.length > 0) {
     const add = document.createElement('select');
     add.className = 'at-add';

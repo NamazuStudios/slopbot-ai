@@ -563,6 +563,95 @@ check('cooldowns', 'per-slop cooldown: arms on trigger plays only, manual plays 
   await resetStage();
 });
 
+check('trigger-http', 'http trigger: a secret per-slop key posted as the whole text/plain body of POST /trigger identifies and plays the slop — key never on open surfaces, rotation retires the old key, retirement on save, cooldown arms, creator proposals rejected', async () => {
+  await resetStage();
+  const name = 'slopfix-http-key.js';
+
+  // The creator proposal of type "http" in the fixture's meta is rejected
+  // outright — it never registers as a (held) trigger; only a streamer save
+  // creates one.
+  let s = await api.snapshot();
+  let entry = entryOf(s, name);
+  assert(entry, 'slopfix-http-key.js is registered');
+  assert(!(entry.triggers ?? []).some((t) => t.type === 'http'), 'a creator-proposed http trigger is rejected, not held');
+
+  // Saving an http trigger as the streamer mints the slop's secret key.
+  const saved = await ensureSlop(name, { triggers: [{ id: 'key', type: 'http' }], cooldownSeconds: 60 });
+  const key = saved.triggerKey;
+  assert(typeof key === 'string' && /^[A-Za-z0-9_-]{32}$/.test(key), `the key mints at save (got ${JSON.stringify(key)})`);
+
+  // The key is SECRET: none of the open surfaces (snapshot, registry SSE
+  // broadcast, bundle) may ever carry it — checked against the raw response
+  // text, not a parsed shape that could drop an unexpected field.
+  const snap = await json(`${BASE_URL}/api/slop`);
+  assert(snap.status === 200 && !snap.body.includes(key), 'GET /api/slop never carries the trigger key');
+  const bundle = await json(`${BASE_URL}/api/slop/bundle/${encodeURIComponent(name)}`);
+  assert(!bundle.body.includes(key), 'the bundle never carries the trigger key');
+
+  const feed = await api.sse();
+  try {
+    // A registry broadcast is triggered by re-saving the triggers; the key
+    // must not ride the registry entries.
+    let mark = feed.mark();
+    await api.post(`/api/slop/triggers/${encodeURIComponent(name)}`, { triggers: [{ id: 'key', type: 'http' }], cooldownSeconds: 60 });
+    await feed.waitAfter(mark, 'registry', () => true, 6000, 'registry broadcast');
+    assert(!feed.events.some((e) => e.type === 'registry' && JSON.stringify(e.data).includes(key)), 'the registry SSE broadcast never carries the trigger key');
+
+    // Content-Type and body contract: text/plain only, body is exactly the key.
+    // (The JSON body must be an object — express's strict json parser rejects
+    // bare strings before the route sees them.)
+    const wrongType = await json(`${BASE_URL}/trigger`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ key }) });
+    assert(wrongType.status === 415, `a JSON body is refused with 415 (got ${wrongType.status})`);
+    const empty = await json(`${BASE_URL}/trigger`, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: '' });
+    assert(empty.status === 400, `an empty body is refused with 400 (got ${empty.status})`);
+
+    // A wrong key is a 404 — distinguishable from every "the slop refused" case.
+    const miss = await json(`${BASE_URL}/trigger`, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: 'not-a-real-key-at-all' });
+    assert(miss.status === 404 && miss.data?.reason === 'unknown-key', `an unknown key answers 404 unknown-key (got ${miss.status} ${miss.data?.reason})`);
+
+    // The right key plays the slop — labeled trigger: http — and arms the
+    // cooldown like any trigger play.
+    await api.post(`/api/slop/cooldown/${encodeURIComponent(name)}/clear`, {});
+    mark = feed.mark();
+    const hit = await json(`${BASE_URL}/trigger`, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: key });
+    assert(hit.status === 200 && hit.data?.ok === true, `the key plays the slop (got ${hit.status} ${JSON.stringify(hit.data)})`);
+    await waitPlay(feed, mark, name, { via: 'trigger: http' });
+    const cooled = await json(`${BASE_URL}/trigger`, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: key });
+    assert(cooled.status === 409 && cooled.data?.reason === 'cooldown', `a second play inside the cooldown window is a 409 cooldown (got ${cooled.status} ${cooled.data?.reason})`);
+    assert(Number(cooled.headers['retry-after']) > 0, 'the cooldown refusal carries Retry-After');
+    await resetStage();
+
+    // Rotation: a fresh key, the old one dead immediately.
+    await api.post(`/api/slop/cooldown/${encodeURIComponent(name)}/clear`, {});
+    mark = feed.mark();
+    const rotated = await api.post(`/api/slop/triggers/${encodeURIComponent(name)}/rotate-key`, {});
+    assert(rotated.data?.ok === true && rotated.data.triggerKey && rotated.data.triggerKey !== key, 'rotate-key mints a fresh key');
+    const oldKey = await json(`${BASE_URL}/trigger`, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: key });
+    assert(oldKey.status === 404, `the retired key is dead (got ${oldKey.status})`);
+    const fresh = await json(`${BASE_URL}/trigger`, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: rotated.data.triggerKey });
+    assert(fresh.status === 200, `the rotated key plays (got ${fresh.status})`);
+    await waitPlay(feed, mark, name, { via: 'trigger: http' });
+    await resetStage();
+
+    // A suspended slop refuses its key with 409 — the streamer's freeze
+    // outranks any trigger.
+    await api.post(`/api/slop/cooldown/${encodeURIComponent(name)}/clear`, {});
+    await api.post(`/api/slop/suspend/${encodeURIComponent(name)}`, { suspended: true });
+    const suspendedHit = await json(`${BASE_URL}/trigger`, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: rotated.data.triggerKey });
+    assert(suspendedHit.status === 409 && suspendedHit.data?.reason === 'suspended', `a suspended slop refuses its key (got ${suspendedHit.status} ${suspendedHit.data?.reason})`);
+
+    // Removing the last http trigger retires the key entirely.
+    await api.post(`/api/slop/suspend/${encodeURIComponent(name)}`, { suspended: false });
+    const retired = await api.post(`/api/slop/triggers/${encodeURIComponent(name)}`, { triggers: [], cooldownSeconds: 0 });
+    assert(retired.data?.ok === true && retired.data.triggerKey == null, 'dropping the last http trigger retires the key');
+    const afterRetire = await json(`${BASE_URL}/trigger`, { method: 'POST', headers: { 'content-type': 'text/plain' }, body: rotated.data.triggerKey });
+    assert(afterRetire.status === 404, `the retired-on-save key is dead (got ${afterRetire.status})`);
+  } finally {
+    feed.close();
+  }
+  await resetStage();
+});
+
 check('name-resolution', '!name resolution: exact handle beats token-subset siblings, spacing-insensitive, !slop-disabled invisible, default !name', async (t) => {
   if (!t.fixture) throw new SkipError('the scripted fake IRC server is required to deliver !slop chat lines');
   await resetStage();

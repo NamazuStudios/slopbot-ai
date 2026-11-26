@@ -110,6 +110,10 @@ triggers: [
   and optionally `follow`, `firstfollow`, `sub`, `resub`, `subgift`, `raid`
   (with `"minViewers": N`), `cheer` (`"minBits": N`), `redemption`
   (`"rewardId": "…"` or omit for any reward).
+- There is also an `http` type — a secret per-slop key that plays the slop
+  via `POST /trigger`. It is **streamer-only**: you never see the key and a
+  proposal of that type is rejected outright. Never try to mint, guess, or
+  reference one.
 - chat criteria: `"mode"` is one of `exact`, `contains`, `starts`, `ends`,
   `word`, `wildcard`, `regex`; `"patterns"` is a short list (match-any);
   `"who"` can be `anyone` (default), `mods`, or `broadcaster`.

@@ -1814,6 +1814,40 @@ button.toggle.on {
   min-width: 12em;
 }
 
+/* The http trigger's secret key — read-only, monospace, masked-ish: it sits
+   in the row like any criteria field but is never editable by hand. */
+.spt-key {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  flex: 1;
+  min-width: 0;
+}
+
+.spt-keyval {
+  flex: 1;
+  min-width: 14em;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.75em;
+  letter-spacing: 0.05em;
+  text-overflow: ellipsis;
+}
+
+.spt-keybtn {
+  font: inherit;
+  font-size: 0.8em;
+  color: #ff9ad8;
+  background: rgba(255, 0, 153, 0.12);
+  border: 1px solid rgba(255, 0, 153, 0.4);
+  border-radius: 6px;
+  padding: 0.15em 0.5em;
+  cursor: pointer;
+}
+
+.spt-keybtn:hover {
+  background: rgba(255, 0, 153, 0.3);
+}
+
 .spt-remove {
   font: inherit;
   font-size: 0.8em;
